@@ -1,0 +1,1 @@
+# ngx-data-manager
