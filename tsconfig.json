@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "module": "es2015",
+    "target": "es5",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "types": [
+      "hammerjs",
+      "jasmine",
+      "node"
+    ],
+    "lib": ["es2015", "dom"]
+  },
+  "files": [
+    "index.ts",
+    "./src/data-entity.class.ts",
+    "./src/data-entity-collection.class.ts",
+    "./src/data-manager.service.ts",
+    "./src/data-structure.class.ts",
+    "./src/external-interface/drupal-interface.class.ts",
+    "./src/external-interface/external-interface.interface.ts",
+    "./settings/settings.class.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "bundles"
+  ],
+  "angularCompilerOptions": {
+    "strictMetadataEmit": true,
+    "skipTemplateCodegen": true
+  }
+}
