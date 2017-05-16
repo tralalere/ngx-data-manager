@@ -3,6 +3,8 @@
  */
 import {NgModule, ModuleWithProviders} from "@angular/core";
 import {DataManagerService} from "./src/data-manager.service";
+import {ConfigProvider} from "./src/config.provider";
+import {DataManagerConfig} from "./src/data-manager-config.interface"
 
 export * from "./src/data-entity-collection.class";
 export * from "./src/data-entity.class";
@@ -10,45 +12,31 @@ export * from "./src/data-manager.service";
 export * from "./src/data-structure.class";
 export * from "./src/external-interface/drupal-interface.class";
 export * from "./src/external-interface/external-interface.interface";
-
-export interface DataManagerConfig {
-}
+export * from "./src/config.provider";
+export * from "./src/data-manager-config.interface";
+export * from "./src/manager-interface-type.enum"
 
 @NgModule({
-    declarations: [
-        //TranslatePipe,
-        //TranslateDirective
-    ],
-    exports: [
-        //TranslatePipe,
-        //TranslateDirective
+    providers: [
+        DataManagerService
     ]
 })
-export class DataManager {
-    /**
-     * Use this method in your root module to provide the TranslateService
-     * @param {DataManagerConfig} config
-     * @returns {ModuleWithProviders}
-     */
-    static forRoot(config: DataManagerConfig = {}): ModuleWithProviders {
+export class DataManagerModule {
+
+    static forRoot(config: DataManagerConfig): ModuleWithProviders {
         return {
-            ngModule: DataManager,
+            ngModule: DataManagerModule,
             providers: [
-                DataManagerService
+                ConfigProvider, {provide: 'config', useValue: config}
             ]
         };
     }
 
-    /**
-     * Use this method in your other (non root) modules to import the directive/pipe
-     * @param {DataManagerConfig} config
-     * @returns {ModuleWithProviders}
-     */
-    static forChild(config: DataManagerConfig = {}): ModuleWithProviders {
+    static forChild(config: DataManagerConfig): ModuleWithProviders {
         return {
-            ngModule: DataManager,
+            ngModule: DataManagerModule,
             providers: [
-                DataManagerService
+                ConfigProvider, {provide: 'config', useValue: config}
             ]
         };
     }

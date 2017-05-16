@@ -9,6 +9,8 @@ import { DrupalInterface } from './external-interface/drupal-interface.class';
 import { ExternalInterface } from './external-interface/external-interface.interface';
 import {Observable} from "rxjs/Rx";
 import {ReplaySubject} from "rxjs/Rx";
+import {ConfigProvider} from "./config.provider";
+import {ManagerInterfaceTypes} from "./manager-interface-type.enum";
 import 'rxjs/add/operator/filter';
 
 
@@ -23,9 +25,13 @@ export class DataManagerService {
     pendingEntitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
 
     constructor(
-        http:Http
+        http:Http,
+        public configProvider:ConfigProvider
     ) {
-        this.externalInterface = new DrupalInterface(http, this);
+        if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
+            this.externalInterface = new DrupalInterface(http, this);
+        }
+
         this.entitiesCollectionsCache = {};
     }
 

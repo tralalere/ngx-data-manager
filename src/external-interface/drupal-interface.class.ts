@@ -31,19 +31,7 @@ export class DrupalInterface implements ExternalInterface {
 
 
     getApiUrl(entityType:string):string {
-        if (entityType === "ressources" ||
-            entityType === "pages" ||
-            entityType === "themes" ||
-            entityType === "formats" ||
-            entityType === "tags" ||
-            entityType === "slides" ||
-            entityType === "events") {
-            //console.log(Settings.apiUrls[this.translate.currentLang]);
-            return Settings.apiUrl;
-        } else {
-            return Settings.apiUrl;
-        }
-        
+        return this.manager.configProvider.apiUrl;
     }
 
 
