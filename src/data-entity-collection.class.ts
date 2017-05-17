@@ -12,7 +12,7 @@ export class DataEntityCollection extends DataStructure {
     entitiesObservables:Array<Observable<DataEntity>> = [];
     rawValues:Array<Object> = [];
 
-    constructor(datas:Array<Object>, public type:string, private manager:DataManagerService) {
+    constructor(datas:Object[], public type:string, private manager:DataManagerService) {
         super();
 
         this.rawValues = datas;
