@@ -126,6 +126,7 @@ export class DrupalInterface implements ExternalInterface {
      * @returns {any} L'observable de l'entité
      */
     saveRawEntity(entity:DataEntity):Observable<DataEntity> {
+        
         var obj:Object = entity.attributes;
 
         return this.http.patch(this.getApiUrl(entity.type) + entity.type + "/" + entity.id, JSON.stringify(obj), {

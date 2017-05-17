@@ -6,6 +6,7 @@ import { Http, Response } from '@angular/http';
 import { DataEntity } from './data-entity.class';
 import { DataEntityCollection } from './data-entity-collection.class';
 import { DrupalInterface } from './external-interface/drupal-interface.class';
+import { LocalStorageInterface } from './external-interface/local-storage-interface.class';
 import { ExternalInterface } from './external-interface/external-interface.interface';
 import {Observable} from "rxjs/Rx";
 import {ReplaySubject} from "rxjs/Rx";
@@ -30,6 +31,8 @@ export class DataManagerService {
     ) {
         if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
             this.externalInterface = new DrupalInterface(http, this);
+        } else if (configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE) {
+            this.externalInterface = new LocalStorageInterface(this);
         }
 
         this.entitiesCollectionsCache = {};

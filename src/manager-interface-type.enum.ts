@@ -3,5 +3,5 @@
  */
 export enum ManagerInterfaceTypes {
     DRUPAL,
-    LOCALDEVICE
+    LOCALSTORAGE
 }
