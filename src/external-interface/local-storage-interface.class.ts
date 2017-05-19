@@ -31,7 +31,6 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     saveToStorage() {
-        console.log(this.models);
         localStorage["local-data"] = JSON.stringify(this.models);
     }
 
@@ -59,7 +58,6 @@ export class LocalStorageInterface implements ExternalInterface {
         }
         
         this.models[entity.type][String(entity.id)] = entity.attributes;
-        console.log(entity);
         this.saveToStorage();
         
         return new BehaviorSubject(entity);
@@ -84,7 +82,7 @@ export class LocalStorageInterface implements ExternalInterface {
         }
 
         var collection:DataEntityCollection = new DataEntityCollection(collectionArray, entityType, this.manager);
-        return new BehaviorSubject<DataEntityCollection>(collection).take(1);
+        return new BehaviorSubject<DataEntityCollection>(collection);
     }
 
     // aucune utilité
@@ -112,7 +110,8 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     deleteEntity(entity: DataEntity): Observable<Response> {
-        return null;
+        delete this.models[entity.type][String(entity.id)];
+        return new BehaviorSubject<Response>(null);
     }
 
     duplicateEntity(entity: DataEntity): Observable<DataEntity> {
