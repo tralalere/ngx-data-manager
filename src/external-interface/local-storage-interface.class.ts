@@ -46,13 +46,13 @@ export class LocalStorageInterface implements ExternalInterface {
         return null;
     }
 
-    loadEntity(entityType: string, entityId: any): Observable<DataEntity> {
+    loadEntity(entityType: string, entityId:any): Observable<DataEntity> {
         var data:Object = this.models[entityType][String(entityId)];
         var entity:DataEntity = new DataEntity(data, entityType, this.manager);
         return new BehaviorSubject<DataEntity>(entity);
     }
 
-    saveEntity(entity: DataEntity, applyDiff:boolean): Observable<DataEntity> {
+    saveEntity(entity:DataEntity, applyDiff:boolean): Observable<DataEntity> {
         if (!this.models[entity.type]) {
             this.models[entity.type] = {};
         }
@@ -64,11 +64,11 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
 
-    saveRawEntity(entity: DataEntity): Observable<DataEntity> {
+    saveRawEntity(entity:DataEntity): Observable<DataEntity> {
         return this.saveEntity(entity, false);
     }
 
-    loadEntityCollection(entityType: string, fields:string[]): Observable<DataEntityCollection> {
+    loadEntityCollection(entityType:string, fields:string[]): Observable<DataEntityCollection> {
         if (!this.models[entityType]) {
             this.models[entityType] = {};
         }
@@ -88,11 +88,11 @@ export class LocalStorageInterface implements ExternalInterface {
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;
 
-    createEntity(entityType: string, datas:Object): Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object): Observable<DataEntity> {
         return this.putEntity(entityType, datas);
     }
 
-    putEntity(entityType: string, datas:Object): Observable<DataEntity> {
+    putEntity(entityType:string, datas:Object): Observable<DataEntity> {
         datas["id"] = this.maxIndex;
         this.maxIndex++;
         this.saveIndex();
@@ -109,12 +109,13 @@ export class LocalStorageInterface implements ExternalInterface {
         return new BehaviorSubject<DataEntity>(entity);
     }
 
-    deleteEntity(entity: DataEntity): Observable<Response> {
+    deleteEntity(entity:DataEntity): Observable<Response> {
         delete this.models[entity.type][String(entity.id)];
+        this.saveToStorage();
         return new BehaviorSubject<Response>(null);
     }
 
-    duplicateEntity(entity: DataEntity): Observable<DataEntity> {
+    duplicateEntity(entity:DataEntity): Observable<DataEntity> {
         return null;
     }
 }
