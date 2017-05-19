@@ -31,11 +31,12 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     saveToStorage() {
+        console.log(this.models);
         localStorage["local-data"] = JSON.stringify(this.models);
     }
 
     loadFromStorage() {
-        if (localStorage["local-data"] === null || localStorage["local-data"] === "") {
+        if (!localStorage["local-data"] || localStorage["local-data"] === "") {
             this.models = {};
         } else {
             this.models = JSON.parse(localStorage["local-data"]);
@@ -58,6 +59,7 @@ export class LocalStorageInterface implements ExternalInterface {
         }
         
         this.models[entity.type][String(entity.id)] = entity.attributes;
+        console.log(entity);
         this.saveToStorage();
         
         return new BehaviorSubject(entity);
@@ -69,23 +71,27 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     loadEntityCollection(entityType: string, fields:string[]): Observable<DataEntityCollection> {
+        if (!this.models[entityType]) {
+            this.models[entityType] = {};
+        }
+
         var collectionArray:Object[] = [];
 
         for (var key in this.models[entityType]) {
             if (this.models[entityType].hasOwnProperty(key)) {
-                collectionArray.push(this.models[key]);
+                collectionArray.push(this.models[entityType][key]);
             }
         }
 
         var collection:DataEntityCollection = new DataEntityCollection(collectionArray, entityType, this.manager);
-        return new BehaviorSubject<DataEntityCollection>(collection);
+        return new BehaviorSubject<DataEntityCollection>(collection).take(1);
     }
 
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;
 
     createEntity(entityType: string, datas:Object): Observable<DataEntity> {
-        return null;
+        return this.putEntity(entityType, datas);
     }
 
     putEntity(entityType: string, datas:Object): Observable<DataEntity> {
@@ -94,10 +100,11 @@ export class LocalStorageInterface implements ExternalInterface {
         this.saveIndex();
 
         if (!this.models[entityType]) {
-            this.models[entityType]= {};
+            this.models[entityType] = {};
         }
 
-        this.models[entityType] = datas;
+        this.models[entityType][String(datas["id"])] = datas;
+        this.saveToStorage();
 
         var entity:DataEntity = new DataEntity(datas, entityType, this.manager);
 
