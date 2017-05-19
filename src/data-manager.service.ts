@@ -19,6 +19,9 @@ import 'rxjs/add/operator/filter';
 export class DataManagerService {
 
     private externalInterface:ExternalInterface;
+    private interfaces:{[key:string]:ExternalInterface} = {};
+
+
     entitiesCollectionsCache:{[key:string]:DataEntityCollection} = {};
     entitiesCollectionsSubjects:{[key:string]:ReplaySubject<DataEntityCollection>} = {};
     pendingCollectionsSubjects:{[key:string]:ReplaySubject<DataEntityCollection>} = {};
@@ -29,6 +32,17 @@ export class DataManagerService {
         http:Http,
         public configProvider:ConfigProvider
     ) {
+        /*switch (configProvider.managerType) {
+            case ManagerInterfaceTypes.DRUPAL:
+                this.externalInterface = new DrupalInterface(http, this);
+                break;
+
+            case configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE:
+                this.externalInterface = new LocalStorageInterface(this);
+                break;
+
+
+        }*/
         if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
             this.externalInterface = new DrupalInterface(http, this);
         } else if (configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE) {

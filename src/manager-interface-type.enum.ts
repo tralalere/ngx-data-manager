@@ -3,5 +3,7 @@
  */
 export enum ManagerInterfaceTypes {
     DRUPAL,
-    LOCALSTORAGE
+    LOCALSTORAGE,
+    NODEJS,
+    MIXED
 }
