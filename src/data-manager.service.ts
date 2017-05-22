@@ -1,25 +1,26 @@
 /**
  * Created by Christophe on 25/11/2016.
  */
-import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { DataEntity } from './data-entity.class';
-import { DataEntityCollection } from './data-entity-collection.class';
-import { DrupalInterface } from './external-interface/drupal-interface.class';
-import { LocalStorageInterface } from './external-interface/local-storage-interface.class';
-import { ExternalInterface } from './external-interface/external-interface.interface';
+import {Injectable} from '@angular/core';
+import {Http, Response} from '@angular/http';
+import {DataEntity} from './data-entity.class';
+import {DataEntityCollection} from './data-entity-collection.class';
+import {DrupalInterface} from './external-interface/drupal-interface.class';
+import {LocalStorageInterface} from './external-interface/local-storage-interface.class';
+import {ExternalInterface} from './external-interface/external-interface.interface';
 import {Observable} from "rxjs/Rx";
 import {ReplaySubject} from "rxjs/Rx";
 import {ConfigProvider} from "./config.provider";
 import {ManagerInterfaceTypes} from "./manager-interface-type.enum";
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/map';
 
 
 @Injectable()
 export class DataManagerService {
 
     private externalInterface:ExternalInterface;
-    private interfaces:{[key:string]:ExternalInterface} = {};
+    //private interfaces:{[key:string]:ExternalInterface} = {};
 
 
     entitiesCollectionsCache:{[key:string]:DataEntityCollection} = {};
@@ -43,6 +44,11 @@ export class DataManagerService {
 
 
         }*/
+
+        //this.interfaces[ManagerInterfaceTypes.DRUPAL] = DrupalInterface;
+        //this.interfaces[ManagerInterfaceTypes.LOCALSTORAGE] = LocalStorageInterface;
+        //this.interfaces[ManagerInterfaceTypes.NODEJS] =
+
         if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
             this.externalInterface = new DrupalInterface(http, this);
         } else if (configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE) {

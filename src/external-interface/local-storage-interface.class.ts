@@ -30,6 +30,30 @@ export class LocalStorageInterface implements ExternalInterface {
         }
     }
 
+    conditionalLoadStorageFromIndex(key:string) {
+        if (!this.models[key]) {
+            this.loadStorageFromIndex(key);
+        }
+    }
+
+    loadStorageFromIndex(key:string) {
+        var collectionKey:string = "collection-" + key;
+
+        if (!localStorage[collectionKey]) {
+            this.models[key] = {};
+        } else {
+            this.models[key] = JSON.parse(localStorage[collectionKey]);
+        }
+    }
+
+    saveStorageToIndex(key:string) {
+        if (!this.models[key]) return;
+
+        var collectionKey:string = "collection-" + key;
+
+        localStorage[collectionKey] = JSON.stringify(this.models[key]);
+    }
+
     saveToStorage() {
         localStorage["local-data"] = JSON.stringify(this.models);
     }
