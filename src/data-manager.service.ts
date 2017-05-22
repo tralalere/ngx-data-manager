@@ -38,16 +38,14 @@ export class DataManagerService {
                 this.externalInterface = new DrupalInterface(http, this);
                 break;
 
-            case configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE:
+            case ManagerInterfaceTypes.LOCALSTORAGE:
                 this.externalInterface = new LocalStorageInterface(this);
                 break;
 
-
+            case ManagerInterfaceTypes.NODEJS:
+                this.externalInterface = new NodeJs
         }*/
-
-        //this.interfaces[ManagerInterfaceTypes.DRUPAL] = DrupalInterface;
-        //this.interfaces[ManagerInterfaceTypes.LOCALSTORAGE] = LocalStorageInterface;
-        //this.interfaces[ManagerInterfaceTypes.NODEJS] =
+        
 
         if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
             this.externalInterface = new DrupalInterface(http, this);

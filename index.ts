@@ -12,9 +12,10 @@ export * from "./src/data-manager.service";
 export * from "./src/data-structure.class";
 export * from "./src/external-interface/drupal-interface.class";
 export * from "./src/external-interface/external-interface.interface";
+export * from "./src/external-interface/nodejs-interface.class";
 export * from "./src/config.provider";
 export * from "./src/data-manager-config.interface";
-export * from "./src/manager-interface-type.enum"
+export * from "./src/manager-interface-type.enum";
 
 @NgModule({
     providers: [

@@ -10,13 +10,13 @@ import {Response} from "@angular/http";
 
 export class LocalStorageInterface implements ExternalInterface {
 
-    models:{[key:string]:Object};
+    models:{[key:string]:Object} = {};
     maxIndex:number = 1;
 
     constructor(
         private manager:DataManagerService
     ) {
-        this.loadFromStorage();
+        //this.loadFromStorage();
         this.loadIndex();
     }
 
@@ -33,6 +33,8 @@ export class LocalStorageInterface implements ExternalInterface {
     conditionalLoadStorageFromIndex(key:string) {
         if (!this.models[key]) {
             this.loadStorageFromIndex(key);
+        } else {
+            this.models[key] = {};
         }
     }
 
@@ -71,6 +73,7 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     loadEntity(entityType: string, entityId:any): Observable<DataEntity> {
+        this.conditionalLoadStorageFromIndex(entityType);
         var data:Object = this.models[entityType][String(entityId)];
         var entity:DataEntity = new DataEntity(data, entityType, this.manager);
         return new BehaviorSubject<DataEntity>(entity);
@@ -82,7 +85,7 @@ export class LocalStorageInterface implements ExternalInterface {
         }
         
         this.models[entity.type][String(entity.id)] = entity.attributes;
-        this.saveToStorage();
+        this.saveStorageToIndex(entity.type);
         
         return new BehaviorSubject(entity);
     }
@@ -93,6 +96,8 @@ export class LocalStorageInterface implements ExternalInterface {
     }
 
     loadEntityCollection(entityType:string, fields:string[]): Observable<DataEntityCollection> {
+        this.conditionalLoadStorageFromIndex(entityType);
+
         if (!this.models[entityType]) {
             this.models[entityType] = {};
         }
@@ -126,7 +131,7 @@ export class LocalStorageInterface implements ExternalInterface {
         }
 
         this.models[entityType][String(datas["id"])] = datas;
-        this.saveToStorage();
+        this.saveStorageToIndex(entityType);
 
         var entity:DataEntity = new DataEntity(datas, entityType, this.manager);
 
@@ -135,7 +140,7 @@ export class LocalStorageInterface implements ExternalInterface {
 
     deleteEntity(entity:DataEntity): Observable<Response> {
         delete this.models[entity.type][String(entity.id)];
-        this.saveToStorage();
+        this.saveStorageToIndex(entity.type);
         return new BehaviorSubject<Response>(null);
     }
 
