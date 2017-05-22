@@ -20,7 +20,7 @@ import 'rxjs/add/operator/map';
 export class DataManagerService {
 
     private externalInterface:ExternalInterface;
-    //private interfaces:{[key:string]:ExternalInterface} = {};
+    private interfaces:{[key:string]:ExternalInterface} = {};
 
 
     entitiesCollectionsCache:{[key:string]:DataEntityCollection} = {};
@@ -45,15 +45,25 @@ export class DataManagerService {
             case ManagerInterfaceTypes.NODEJS:
                 this.externalInterface = new NodeJs
         }*/
-        
 
-        if (configProvider.managerType === ManagerInterfaceTypes.DRUPAL) {
+        console.log(this.configProvider.config);
+
+        if (configProvider.config.defaultInterface === ManagerInterfaceTypes.DRUPAL) {
             this.externalInterface = new DrupalInterface(http, this);
-        } else if (configProvider.managerType === ManagerInterfaceTypes.LOCALSTORAGE) {
+        } else if (configProvider.config.defaultInterface === ManagerInterfaceTypes.LOCALSTORAGE) {
             this.externalInterface = new LocalStorageInterface(this);
         }
 
         this.entitiesCollectionsCache = {};
+    }
+
+
+    getInterface(id:string):ExternalInterface {
+        if (!this.interfaces[id]) {
+            //this.interfaces[id] =
+        }
+
+        return this.interfaces[id];
     }
 
 

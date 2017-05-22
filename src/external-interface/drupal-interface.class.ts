@@ -31,7 +31,7 @@ export class DrupalInterface implements ExternalInterface {
 
 
     getApiUrl(entityType:string):string {
-        return this.manager.configProvider.apiUrl;
+        return this.manager.configProvider.config.configuration.drupal.apiUrl;
     }
 
 

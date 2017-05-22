@@ -10,10 +10,8 @@ export class ConfigProvider {
     constructor(
         @Inject('config') config:DataManagerConfig
     ) {
-        this.apiUrl = config.apiUrl;
-        this.managerType = config.managerType;
+        this.config = config;
     }
-
-    apiUrl:string;
-    managerType;
+    
+    config:DataManagerConfig;
 }
