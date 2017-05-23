@@ -14,7 +14,8 @@ export class LocalStorageInterface implements ExternalInterface {
     maxIndex:number = 1;
 
     constructor(
-        private manager:DataManagerService
+        private manager:DataManagerService,
+        private configuration:Object
     ) {
         //this.loadFromStorage();
         this.loadIndex();

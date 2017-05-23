@@ -11,7 +11,8 @@ import {ExternalInterface} from './external-interface/external-interface.interfa
 import {Observable} from "rxjs/Rx";
 import {ReplaySubject} from "rxjs/Rx";
 import {ConfigProvider} from "./config.provider";
-import {ManagerInterfaceTypes} from "./manager-interface-type.enum";
+import {DataManagerConfig} from "./data-manager-config.interface";
+import {NodeJsInterface} from "./external-interface/nodejs-interface.class";
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 
@@ -30,40 +31,53 @@ export class DataManagerService {
     pendingEntitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
 
     constructor(
-        http:Http,
+        public http:Http,
         public configProvider:ConfigProvider
     ) {
-        /*switch (configProvider.managerType) {
-            case ManagerInterfaceTypes.DRUPAL:
-                this.externalInterface = new DrupalInterface(http, this);
-                break;
-
-            case ManagerInterfaceTypes.LOCALSTORAGE:
-                this.externalInterface = new LocalStorageInterface(this);
-                break;
-
-            case ManagerInterfaceTypes.NODEJS:
-                this.externalInterface = new NodeJs
-        }*/
-
-        console.log(this.configProvider.config);
-
-        if (configProvider.config.defaultInterface === ManagerInterfaceTypes.DRUPAL) {
-            this.externalInterface = new DrupalInterface(http, this);
-        } else if (configProvider.config.defaultInterface === ManagerInterfaceTypes.LOCALSTORAGE) {
-            this.externalInterface = new LocalStorageInterface(this);
-        }
-
         this.entitiesCollectionsCache = {};
     }
 
+    createInterfaceByKey(interfaceType:string, conf:Object):ExternalInterface {
 
-    getInterface(id:string):ExternalInterface {
-        if (!this.interfaces[id]) {
-            //this.interfaces[id] =
+        switch (interfaceType) {
+            case "drupal":
+                return new DrupalInterface(this.http, this, conf);
+
+            case "localstorage":
+                return new LocalStorageInterface(this, conf);
+
+            case "nodejs":
+                return new NodeJsInterface(conf);
+
+            default:
+                console.warn("Unknown external interface type");
+                return null;
+        }
+    }
+
+
+    createInterfaces(conf:DataManagerConfig) {
+
+        if (conf.configuration) {
+            for (var key in conf.configuration) {
+                if (conf.configuration.hasOwnProperty(key)) {
+                    this.interfaces[key] = this.createInterfaceByKey(key, conf.configuration[key]);
+                }
+            }
         }
 
-        return this.interfaces[id];
+        if (conf.declarations) {
+            for (var key in conf.declarations) {
+                if (conf.declarations.hasOwnProperty(key)) {
+                    this.interfaces[key] = this.createInterfaceByKey(conf.declarations[key].interfaceType, conf.declarations[key].configuration);
+                }
+            }
+        }
+    }
+
+
+    getInterface(endPointName:string):ExternalInterface {
+        return null;
     }
 
 

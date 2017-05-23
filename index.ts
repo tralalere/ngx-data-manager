@@ -15,7 +15,6 @@ export * from "./src/external-interface/external-interface.interface";
 export * from "./src/external-interface/nodejs-interface.class";
 export * from "./src/config.provider";
 export * from "./src/data-manager-config.interface";
-export * from "./src/manager-interface-type.enum";
 
 export * from "./src/external-interface/drupal-interface-config.interface";
 export * from "./src/external-interface/local-storage-interface-config.interface";

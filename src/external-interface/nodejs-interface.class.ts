@@ -10,6 +10,10 @@ import {Response} from "@angular/http";
 
 export class NodeJsInterface implements ExternalInterface {
 
+    constructor(
+        private configuration:Object
+    ) {}
+
     getEntity(entityType:string):Observable<DataEntity> {
          return null;
     }

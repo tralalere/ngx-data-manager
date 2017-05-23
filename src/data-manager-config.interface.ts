@@ -4,13 +4,18 @@
 import {DrupalInterfaceConfig} from "./external-interface/drupal-interface-config.interface";
 import {NodeJSInterfaceConfig} from "./external-interface/nodejs-interface-config.interface";
 import {LocalStorageInterfaceConfig} from "./external-interface/local-storage-interface-config.interface";
+import {ExternalInterface} from "./external-interface/external-interface.interface";
 
 export interface DataManagerConfig {
-    defaultInterface?;
+    defaultInterface?:string;
     configuration?: {
         drupal?:DrupalInterfaceConfig,
         localstorage?:LocalStorageInterfaceConfig,
         nodejs?:NodeJSInterfaceConfig
     };
-    map?:{[key:string]:Object};
+    declarations?: {[key:string]: {
+        interfaceType:string,
+        configuration:DrupalInterfaceConfig|LocalStorageInterfaceConfig|NodeJSInterfaceConfig|ExternalInterface
+    }},
+    map?:{[key:string]:string};
 }

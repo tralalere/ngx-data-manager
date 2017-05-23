@@ -16,8 +16,9 @@ import 'rxjs/add/operator/map';
 export class DrupalInterface implements ExternalInterface {
 
     constructor(
-        private http: Http,
-        private manager:DataManagerService
+        private http:Http,
+        private manager:DataManagerService,
+        private configuration:Object
     ) {}
 
 
