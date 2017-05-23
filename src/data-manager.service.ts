@@ -47,7 +47,7 @@ export class DataManagerService {
                 return new LocalStorageInterface(this, conf);
 
             case "nodejs":
-                return new NodeJsInterface(conf);
+                return new NodeJsInterface(this, conf);
 
             default:
                 console.warn("Unknown external interface type.");

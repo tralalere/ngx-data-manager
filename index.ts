@@ -20,13 +20,11 @@ export * from "./src/external-interface/drupal-interface-config.interface";
 export * from "./src/external-interface/local-storage-interface-config.interface";
 export * from "./src/external-interface/nodejs-interface-config.interface";
 
-export function getDataManager() {
-    return DataManagerService;
-}
+export * from "./src/external-interface/nodejs-data.interface";
 
 @NgModule({
     providers: [
-        getDataManager()
+        DataManagerService
     ]
 })
 export class DataManagerModule {
