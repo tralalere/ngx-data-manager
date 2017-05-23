@@ -7,11 +7,12 @@ import {Observable} from "rxjs/Rx";
 import {DataEntity} from "../data-entity.class";
 import {DataEntityCollection} from "../data-entity-collection.class";
 import {Response} from "@angular/http";
+import {NodeJSInterfaceConfig} from "./nodejs-interface-config.interface";
 
 export class NodeJsInterface implements ExternalInterface {
 
     constructor(
-        private configuration:Object
+        private configuration:NodeJSInterfaceConfig
     ) {}
 
     getEntity(entityType:string):Observable<DataEntity> {

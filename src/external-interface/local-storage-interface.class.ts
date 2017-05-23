@@ -7,6 +7,7 @@ import {Observable, BehaviorSubject} from "rxjs/Rx";
 import {DataEntity} from "../data-entity.class";
 import {DataEntityCollection} from "../data-entity-collection.class";
 import {Response} from "@angular/http";
+import {LocalStorageInterfaceConfig} from "./local-storage-interface-config.interface";
 
 export class LocalStorageInterface implements ExternalInterface {
 
@@ -15,7 +16,7 @@ export class LocalStorageInterface implements ExternalInterface {
 
     constructor(
         private manager:DataManagerService,
-        private configuration:Object
+        private configuration:LocalStorageInterfaceConfig
     ) {
         //this.loadFromStorage();
         this.loadIndex();

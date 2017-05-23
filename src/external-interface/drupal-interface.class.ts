@@ -1,12 +1,13 @@
 /**
  * Created by reunion on 21/11/2016.
  */
-import { ExternalInterface } from "./external-interface.interface";
-import { DataEntity } from "../data-entity.class"
-import { DataEntityCollection } from "../data-entity-collection.class"
-import { Settings } from "../../settings/Settings.class"
-import { Headers, Http, Response } from "@angular/http";
-import { DataManagerService } from '../data-manager.service';
+import {ExternalInterface} from "./external-interface.interface";
+import {DataEntity} from "../data-entity.class"
+import {DataEntityCollection} from "../data-entity-collection.class"
+import {Settings} from "../../settings/Settings.class"
+import {Headers, Http, Response} from "@angular/http";
+import {DataManagerService} from '../data-manager.service';
+import {DrupalInterfaceConfig} from "./drupal-interface-config.interface";
 import {Observable} from "rxjs/Rx";
 
 // Operators
@@ -18,7 +19,7 @@ export class DrupalInterface implements ExternalInterface {
     constructor(
         private http:Http,
         private manager:DataManagerService,
-        private configuration:Object
+        private configuration:DrupalInterfaceConfig
     ) {}
 
 
@@ -32,7 +33,7 @@ export class DrupalInterface implements ExternalInterface {
 
 
     getApiUrl(entityType:string):string {
-        return this.manager.configProvider.config.configuration.drupal.apiUrl;
+        return this.configuration.apiUrl;
     }
 
 
@@ -42,14 +43,6 @@ export class DrupalInterface implements ExternalInterface {
      * @returns {ObserverObservableCouple<DataEntity>} Couple Observable / Observer créé conséquemment à la requête http
      */
     getEntity(entityType:string):Observable<DataEntity> {
-
-        //var couple:ObserverObservableCouple<DataEntity> = new ObserverObservableCouple<DataEntity>();
-
-        /*couple.observable = Observable.create((observer:Observer<DataEntity>) => {
-            couple.observer = observer;
-        });*/
-
-        console.log("getEntity interface");
 
         return this.http.get(this.getApiUrl(entityType) + entityType, {
             headers: this.getHeaders()
@@ -70,12 +63,6 @@ export class DrupalInterface implements ExternalInterface {
      * @returns {ObserverObservableCouple<DataEntity>} Couple Observable / Observer créé conséquemment à la requête http
      */
     loadEntity(entityType:string, entityId:any):Observable<DataEntity> {
-
-        //var couple:ObserverObservableCouple<DataEntity> = new ObserverObservableCouple<DataEntity>();
-
-        /*couple.observable = Observable.create((observer:Observer<DataEntity>) => {
-            couple.observer = observer;
-        });*/
 
         return this.http.get(this.getApiUrl(entityType) + entityType + "/" + entityId,  {
             headers: this.getHeaders()
@@ -144,34 +131,18 @@ export class DrupalInterface implements ExternalInterface {
      */
     createEntity(entityType:string, datas:Object):Observable<DataEntity> {
 
-        /*var couple:ObserverObservableCouple<DataEntity> = new ObserverObservableCouple<DataEntity>();
-
-         couple.observable = Observable.create((observer:Observer<DataEntity>) => {
-         couple.observer = observer;
-         });*/
-
         return this.http.post(this.getApiUrl(entityType) + entityType, JSON.stringify(datas), {
             headers: this.getHeaders()
         })
             .map(this.extractEntity, {entityType: entityType, manager: this.manager}).catch(this.handleError);
-
-        //return couple;
     }
 
     putEntity(entityType:string, datas:Object):Observable<DataEntity> {
-
-        /*var couple:ObserverObservableCouple<DataEntity> = new ObserverObservableCouple<DataEntity>();
-
-         couple.observable = Observable.create((observer:Observer<DataEntity>) => {
-         couple.observer = observer;
-         });*/
 
         return this.http.put(this.getApiUrl(entityType) + entityType, JSON.stringify(datas), {
             headers: this.getHeaders()
         })
             .map(this.extractEntity, {entityType: entityType, manager: this.manager}).catch(this.handleError);
-
-        //return couple;
     }
 
 

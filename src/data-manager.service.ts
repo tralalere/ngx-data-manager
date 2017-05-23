@@ -20,7 +20,6 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class DataManagerService {
 
-    private externalInterface:ExternalInterface;
     private interfaces:{[key:string]:ExternalInterface} = {};
 
 
@@ -35,9 +34,10 @@ export class DataManagerService {
         public configProvider:ConfigProvider
     ) {
         this.entitiesCollectionsCache = {};
+        this.createInterfaces(configProvider.config);
     }
 
-    createInterfaceByKey(interfaceType:string, conf:Object):ExternalInterface {
+    createInterfaceByKey(interfaceType:string, conf:any):ExternalInterface {
 
         switch (interfaceType) {
             case "drupal":
@@ -50,7 +50,7 @@ export class DataManagerService {
                 return new NodeJsInterface(conf);
 
             default:
-                console.warn("Unknown external interface type");
+                console.warn("Unknown external interface type.");
                 return null;
         }
     }
@@ -77,7 +77,15 @@ export class DataManagerService {
 
 
     getInterface(endPointName:string):ExternalInterface {
-        return null;
+        var interfaceId:string;
+
+        if (this.configProvider.config.map[endPointName]) {
+            interfaceId = this.configProvider.config.map[endPointName];
+        } else {
+            interfaceId = this.configProvider.config.defaultInterface;
+        }
+
+        return this.interfaces[interfaceId];
     }
 
 
@@ -99,7 +107,7 @@ export class DataManagerService {
             this.registerEntityCollectionSubject(entityType, subject);
             this.pendingCollectionsSubjects[entityType] = subject;
 
-            this.externalInterface.loadEntityCollection(entityType, fields)
+            this.getInterface(entityType).loadEntityCollection(entityType, fields)
                 .map(this.addTest, this)
                 .subscribe((collection:DataEntityCollection) => {
 
@@ -118,7 +126,7 @@ export class DataManagerService {
 
                 this.pendingCollectionsSubjects[entityType] = subject;
 
-                this.externalInterface.loadEntityCollection(entityType, fields)
+                this.getInterface(entityType).loadEntityCollection(entityType, fields)
                     .map(this.addTest, this)
                     .subscribe((collection:DataEntityCollection) => {
                         this.entitiesCollectionsCache[entityType] = collection;
@@ -157,7 +165,7 @@ export class DataManagerService {
 
             this.registerEntitySubject(entityId, subject);
 
-            this.externalInterface.loadEntity(entityType, entityId)
+            this.getInterface(entityType).loadEntity(entityType, entityId)
                 .subscribe((entity:DataEntity) => {
                         subject.next(entity);
                         tSubject.next(entity);
@@ -177,7 +185,7 @@ export class DataManagerService {
 
                 this.pendingEntitiesSubjects[entityId] = subject;
 
-                this.externalInterface.loadEntity(entityType, entityId)
+                this.getInterface(entityType).loadEntity(entityType, entityId)
                     .subscribe((entity:DataEntity) => {
                             subject.next(entity);
                             tSubject.next(entity);
@@ -206,7 +214,7 @@ export class DataManagerService {
 
             subject = new ReplaySubject<DataEntity>(1);
 
-            this.externalInterface.getEntity(entityType)
+            this.getInterface(entityType).getEntity(entityType)
                 .subscribe((entity:DataEntity) => {
                         subject.next(entity);
                         this.registerEntity(entity, subject);
@@ -219,7 +227,7 @@ export class DataManagerService {
 
             if (!this.entitiesCollectionsCache[entityType]) {
 
-                this.externalInterface.getEntity(entityType)
+                this.getInterface(entityType).getEntity(entityType)
                     .subscribe((entity:DataEntity) => {
                             subject.next(entity);
                             this.registerEntity(entity, subject);
@@ -279,7 +287,7 @@ export class DataManagerService {
 
         if(!raw) {
             if (entity.hasChanged() || !applyDiff) {
-                this.externalInterface.saveEntity(entity, applyDiff).subscribe((entity:DataEntity) => {
+                this.getInterface(entity.type).saveEntity(entity, applyDiff).subscribe((entity:DataEntity) => {
                     if (propagateChanges) {
                         this.propagateEntityChange(entity);
                     }
@@ -290,7 +298,7 @@ export class DataManagerService {
                 subject.next(entity);
             }
         } else {
-            this.externalInterface.saveRawEntity(entity).subscribe((entity: DataEntity) => {
+            this.getInterface(entity.type).saveRawEntity(entity).subscribe((entity: DataEntity) => {
                 subject.next(entity);
             });
         }
@@ -309,7 +317,7 @@ export class DataManagerService {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
-        this.externalInterface.createEntity(entityType, datas)
+        this.getInterface(entityType).createEntity(entityType, datas)
             .subscribe((entity:DataEntity) => {
                     this.registerEntity(entity, subject);
                     subject.next(entity);
@@ -331,7 +339,7 @@ export class DataManagerService {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
-        this.externalInterface.putEntity(entityType, datas)
+        this.getInterface(entityType).putEntity(entityType, datas)
             .subscribe((entity:DataEntity) => {
                     this.registerEntity(entity, subject);
                     subject.next(entity);
@@ -366,7 +374,7 @@ export class DataManagerService {
 
         var subject:ReplaySubject<Response> = new ReplaySubject<Response>(1);
 
-        var observable:Observable<Response> = this.externalInterface.deleteEntity(entity);
+        var observable:Observable<Response> = this.getInterface(entity.type).deleteEntity(entity);
         observable.subscribe((response:Response) => {
             subject.next(response);
             this.unregisterEntity(entity);
