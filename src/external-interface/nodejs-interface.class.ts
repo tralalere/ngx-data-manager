@@ -51,8 +51,8 @@ export class NodeJsInterface implements ExternalInterface {
         return this.wallSubject.map(this.filterCollectionData, { type: entityType, wall: wall, self: this });
     }
     
-    getMappedEntitiesDatas():Observable<DataEntity[]> {
-        return this.messageSubject.map(this.filterEntityData, this);
+    getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
+        return this.messageSubject.map(this.filterEntityData, { self: this, command: command });
     }
 
     /*getUuidFilteredObservable(entityType:string, uid:string):Observable<NodeJsDataInterface[]> {
@@ -78,7 +78,9 @@ export class NodeJsInterface implements ExternalInterface {
         var entities:DataEntity[] = [];
         
         data.forEach((itemData:NodeJsDataInterface) => {
-            entities.push(this.mapToEntity(itemData));
+            if (itemData.command === this["command"]) {
+                entities.push(this["self"].mapToEntity(itemData));
+            }
         });
         
         return entities;
@@ -108,7 +110,19 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     saveEntity(entity: DataEntity, applyDiff:boolean):Observable<DataEntity> {
-        return null
+
+        var requestData:NodeJsDataInterface = {
+            command: "update",
+            data: entity.attributes,
+            mur: "test1",
+            type: entity.type
+        };
+
+        console.log("SAVE", requestData);
+
+        this.socket.emit("message", requestData);
+
+        return new BehaviorSubject<DataEntity>(entity);
     }
 
     saveRawEntity(entity:DataEntity):Observable<DataEntity> {
@@ -118,11 +132,21 @@ export class NodeJsInterface implements ExternalInterface {
     loadEntityCollection(entityType:string, fields:Array<string>):Observable<DataEntityCollection> {
         this.socket.emit('connexion', "test1");
         
-        this.getMappedEntitiesDatas().subscribe((entities:DataEntity[]) => {
+        this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
             entities.forEach((entity:DataEntity) => {
                 this.manager.checkAndRegisterEntity(entity);
             });
         });
+
+        this.getMappedEntitiesDatas("update").subscribe((entities:DataEntity[]) => {
+            entities.forEach((entity:DataEntity) => {
+                this.manager.checkAndRegisterEntity(entity);
+            });
+        });
+
+        var obs:Observable<DataEntityCollection> = this.getWallAndTypeFilteredObservable(entityType, "test1");
+
+        obs.subscribe(coll => console.log("COLLECTION DE BASE", coll));
 
         return this.getWallAndTypeFilteredObservable(entityType, "test1");
     }
@@ -151,13 +175,22 @@ export class NodeJsInterface implements ExternalInterface {
             uuid: uid
         };
 
-        var newEntity:DataEntity = this.mapToEntity(requestData);
         this.socket.emit("message", requestData);
-        return new BehaviorSubject<DataEntity>(newEntity);
+        return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
 
     deleteEntity(entity:DataEntity):Observable<Response> {
-        return null;
+
+        let requestData:NodeJsDataInterface = {
+            command: "delete",
+            data: entity.attributes,
+            mur: "test1",
+            type: entity.type
+        };
+
+        this.socket.emit("message", requestData);
+        
+        return new BehaviorSubject<Response>(null);
     }
 
     duplicateEntity(entity:DataEntity):Observable<DataEntity> {

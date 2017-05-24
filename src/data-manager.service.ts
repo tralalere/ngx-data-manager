@@ -313,6 +313,9 @@ export class DataManagerService {
 
         if (this.entitiesSubjects[entity.id]) {
             // case 1: entity already in cache
+            //this.entitiesSubjects[entity.id].subscribe((data:DataEntity) => {
+                //data.attributes = entity.attributes;
+            //});
 
             subject = this.entitiesSubjects[entity.id];
             subject.next(entity);
@@ -331,7 +334,7 @@ export class DataManagerService {
 
             this.nextOnCollection(entity.type);
         }
-        
+
 
         return subject;
     }

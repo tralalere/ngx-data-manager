@@ -8,4 +8,5 @@ export interface NodeJsDataInterface {
     mur:string;
     command?:string;
     uuid?:string;
+    id?:number
 }
