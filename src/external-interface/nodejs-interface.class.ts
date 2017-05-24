@@ -144,6 +144,12 @@ export class NodeJsInterface implements ExternalInterface {
             });
         });
 
+        this.getMappedEntitiesDatas("delete").subscribe((entities:DataEntity[]) => {
+            entities.forEach((entity:DataEntity) => {
+                this.manager.deleteAction(entity);
+            });
+        });
+
         var obs:Observable<DataEntityCollection> = this.getWallAndTypeFilteredObservable(entityType, "test1");
 
         obs.subscribe(coll => console.log("COLLECTION DE BASE", coll));

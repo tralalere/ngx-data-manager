@@ -313,9 +313,15 @@ export class DataManagerService {
 
         if (this.entitiesSubjects[entity.id]) {
             // case 1: entity already in cache
-            //this.entitiesSubjects[entity.id].subscribe((data:DataEntity) => {
+            this.entitiesSubjects[entity.id].subscribe((data:DataEntity) => {
+
+                for (var key in data.attributes) {
+                    if (data.attributes.hasOwnProperty(key)) {
+                        entity.attributes[key] = data.attributes[key];
+                    }
+                }
                 //data.attributes = entity.attributes;
-            //});
+            });
 
             subject = this.entitiesSubjects[entity.id];
             subject.next(entity);
@@ -423,6 +429,38 @@ export class DataManagerService {
         });
 
         return subject;
+    }
+
+
+    getEntityIndexInCollection(entity:DataEntity) {
+        let entities:DataEntity[] = this.entitiesCollectionsCache[entity.type].dataEntities;
+
+        let count:number = 0;
+
+        for (let ent of entities) {
+
+            if (ent.id === entity.id) {
+                return count;
+            }
+
+            count++;
+        }
+
+        return -1;
+    }
+
+
+    deleteAction(entity:DataEntity) {
+        this.unregisterEntity(entity);
+
+        if (this.entitiesCollectionsCache[entity.type]) {
+            let index:number = this.getEntityIndexInCollection(entity);
+
+            if (index !== -1) {
+                this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
+                this.nextOnCollection(entity.type);
+            }
+        }
     }
 
 
