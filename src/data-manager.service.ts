@@ -307,6 +307,36 @@ export class DataManagerService {
     }
 
 
+    checkAndRegisterEntity(entity:DataEntity):Observable<DataEntity> {
+
+        var subject:ReplaySubject<DataEntity>;
+
+        if (this.entitiesSubjects[entity.id]) {
+            // case 1: entity already in cache
+
+            subject = this.entitiesSubjects[entity.id];
+            subject.next(entity);
+
+        } else {
+            // case 2: new entity
+
+            subject = new ReplaySubject<DataEntity>(1);
+
+            this.registerEntity(entity, subject);
+            subject.next(entity);
+
+            if (this.entitiesCollectionsCache[entity.type]) {
+                this.entitiesCollectionsCache[entity.type].dataEntities.push(entity);
+            }
+
+            this.nextOnCollection(entity.type);
+        }
+        
+
+        return subject;
+    }
+
+
     /**
      * Crée une nouvelle entité d'un type donné dans le provider de données
      * @param entityType Type de l'entité à créer
