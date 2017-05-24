@@ -182,6 +182,7 @@ export class NodeJsInterface implements ExternalInterface {
         };
 
         this.socket.emit("message", requestData);
+        this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(new DataEntity(datas, entityType, this.manager)));
         return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
 

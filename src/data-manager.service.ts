@@ -336,6 +336,7 @@ export class DataManagerService {
 
             if (this.entitiesCollectionsCache[entity.type]) {
                 this.entitiesCollectionsCache[entity.type].dataEntities.push(entity);
+                this.entitiesCollectionsCache[entity.type].entitiesObservables.push(subject);
             }
 
             this.nextOnCollection(entity.type);
@@ -458,6 +459,7 @@ export class DataManagerService {
 
             if (index !== -1) {
                 this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
+                this.entitiesCollectionsCache[entity.type].entitiesObservables.splice(index, 1);
                 this.nextOnCollection(entity.type);
             }
         }
@@ -510,6 +512,10 @@ export class DataManagerService {
     unregisterEntity(entity:DataEntity) {
         if (this.entitiesSubjects[entity.id]) {
             delete this.entitiesSubjects[entity.id];
+
+            let index:number = this.entitiesCollectionsCache[entity.type].dataEntities.indexOf(entity);
+            this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
+            this.entitiesCollectionsCache[entity.type].entitiesObservables.splice(index, 1);
         }
     }
 
