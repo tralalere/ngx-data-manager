@@ -355,6 +355,7 @@ export class DataManagerService {
 
                     if (this.entitiesCollectionsCache[entityType]) {
                         this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(sub);
                     }
 
                     this.nextOnCollection(entityType);
@@ -377,6 +378,7 @@ export class DataManagerService {
 
                     if (this.entitiesCollectionsCache[entityType]) {
                         this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
                     }
 
                     this.nextOnCollection(entityType);
@@ -415,6 +417,7 @@ export class DataManagerService {
 
                 if (index !== -1) {
                     this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
+                    this.entitiesCollectionsCache[entity.type].entitiesObservables.splice(index, 1);
                     this.nextOnCollection(entity.type);
                 }
             }
@@ -443,8 +446,6 @@ export class DataManagerService {
 
 
     deleteAction(entity:DataEntity) {
-        this.unregisterEntity(entity);
-
         if (this.entitiesCollectionsCache[entity.type]) {
             let index:number = this.getEntityIndexInCollection(entity);
 
@@ -463,13 +464,6 @@ export class DataManagerService {
      * @returns {Observable<DataEntity>} L'observable de création de l'entité
      */
     duplicateEntity(entity:DataEntity):Observable<DataEntity> {
-
-        // TODO: à terminer
-
-        //var couple:ObserverObservableCouple<DataEntity> = this.externalInterface.duplicateEntity(entity);
-        //couple.observable.subscribe((createdEntity:DataEntity) => this.registerEntity(createdEntity, couple.observable, couple.observer));
-        //return couple.observable;
-
         return null;
     }
 
