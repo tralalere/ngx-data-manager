@@ -313,15 +313,6 @@ export class DataManagerService {
 
         if (this.entitiesSubjects[entity.id]) {
             // case 1: entity already in cache
-            this.entitiesSubjects[entity.id].subscribe((data:DataEntity) => {
-
-                for (var key in data.attributes) {
-                    if (data.attributes.hasOwnProperty(key)) {
-                        entity.attributes[key] = data.attributes[key];
-                    }
-                }
-                //data.attributes = entity.attributes;
-            });
 
             subject = this.entitiesSubjects[entity.id];
             subject.next(entity);
