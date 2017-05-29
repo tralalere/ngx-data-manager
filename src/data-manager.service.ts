@@ -94,9 +94,10 @@ export class DataManagerService {
      * @param entityType Type d'entité à charger
      * @param forceLoading Force le chargement depuis provider de données (pas de cache front)
      * @param fields
+     * @param params
      * @returns {Observable<DataEntityCollection>} L'observable de chargement
      */
-    loadEntityCollection(entityType:string, forceLoading:boolean = false, fields:Array<string> = null):Observable<DataEntityCollection> {
+    loadEntityCollection(entityType:string, forceLoading:boolean = false, fields:Array<string> = null, params:Object = null):Observable<DataEntityCollection> {
 
         var subject:ReplaySubject<DataEntityCollection>;
         var tSubject:ReplaySubject<DataEntityCollection> = new ReplaySubject<DataEntityCollection>(1);
@@ -107,7 +108,7 @@ export class DataManagerService {
             this.registerEntityCollectionSubject(entityType, subject);
             this.pendingCollectionsSubjects[entityType] = subject;
 
-            this.getInterface(entityType).loadEntityCollection(entityType, fields)
+            this.getInterface(entityType).loadEntityCollection(entityType, fields, params)
                 .map(this.addTest, this)
                 .subscribe((collection:DataEntityCollection) => {
 
@@ -126,7 +127,7 @@ export class DataManagerService {
 
                 this.pendingCollectionsSubjects[entityType] = subject;
 
-                this.getInterface(entityType).loadEntityCollection(entityType, fields)
+                this.getInterface(entityType).loadEntityCollection(entityType, fields, params)
                     .map(this.addTest, this)
                     .subscribe((collection:DataEntityCollection) => {
                         this.entitiesCollectionsCache[entityType] = collection;
@@ -355,7 +356,7 @@ export class DataManagerService {
 
                     if (this.entitiesCollectionsCache[entityType]) {
                         this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
-                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(sub);
+                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
                     }
 
                     this.nextOnCollection(entityType);

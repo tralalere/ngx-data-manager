@@ -3,4 +3,6 @@
  */
 export interface NodeJSInterfaceConfig {
     socketUrl:string;
+    messageEvent?:string;
+    wallEvent?:string;
 }

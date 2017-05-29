@@ -97,7 +97,7 @@ export class LocalStorageInterface implements ExternalInterface {
         return this.saveEntity(entity, false);
     }
 
-    loadEntityCollection(entityType:string, fields:string[]): Observable<DataEntityCollection> {
+    loadEntityCollection(entityType:string, fields:string[], params:Object = null): Observable<DataEntityCollection> {
         this.conditionalLoadStorageFromIndex(entityType);
 
         if (!this.models[entityType]) {

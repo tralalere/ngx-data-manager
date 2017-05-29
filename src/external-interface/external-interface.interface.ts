@@ -14,7 +14,7 @@ export interface ExternalInterface {
     saveEntity(entity: DataEntity, applyDiff:boolean): Observable<DataEntity>;
     saveRawEntity(entity: DataEntity): Observable<DataEntity>;
 
-    loadEntityCollection(entityType: string, fields:Array<string>): Observable<DataEntityCollection>;
+    loadEntityCollection(entityType: string, fields:Array<string>, params:Object): Observable<DataEntityCollection>;
 
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;

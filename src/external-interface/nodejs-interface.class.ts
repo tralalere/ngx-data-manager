@@ -129,8 +129,13 @@ export class NodeJsInterface implements ExternalInterface {
         return null;
     }
 
-    loadEntityCollection(entityType:string, fields:Array<string>):Observable<DataEntityCollection> {
-        this.socket.emit('connexion', "test1");
+    loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
+
+        if (params && params["wallid"]) {
+            this.socket.emit('connexion', params["wallid"]);
+        } else {
+            this.socket.emit(entityType);
+        }
         
         this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
             entities.forEach((entity:DataEntity) => {

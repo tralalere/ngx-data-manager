@@ -172,9 +172,10 @@ export class DrupalInterface implements ExternalInterface {
      * Charge une collection d'entités depuis le serveur
      * @param entityType Type de collection à charger
      * @param fields
+     * @param params
      * @returns {Observable<DataEntityCollection>} L'observable de la collection
      */
-    loadEntityCollection(entityType:string, fields:Array<string> = null):Observable<DataEntityCollection> {
+    loadEntityCollection(entityType:string, fields:Array<string> = null, params:Object = null):Observable<DataEntityCollection> {
 
         var url:string = this.getApiUrl(entityType) + entityType;
 
