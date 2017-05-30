@@ -149,4 +149,8 @@ export class LocalStorageInterface implements ExternalInterface {
     duplicateEntity(entity:DataEntity): Observable<DataEntity> {
         return null;
     }
+    
+    release() {
+        
+    }
 }

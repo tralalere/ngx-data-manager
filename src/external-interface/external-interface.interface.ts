@@ -23,4 +23,6 @@ export interface ExternalInterface {
     putEntity(entityType: string, datas:Object): Observable<DataEntity>;
     deleteEntity(entity: DataEntity): Observable<Response>;
     duplicateEntity(entity: DataEntity): Observable<DataEntity>;
+    
+    release();
 }

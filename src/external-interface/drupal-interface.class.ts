@@ -213,4 +213,8 @@ export class DrupalInterface implements ExternalInterface {
     saveEntityCollection(entityCollection:DataEntityCollection):Observable<DataEntityCollection> {
         return null;
     }
+    
+    release() {
+        
+    }
 }
