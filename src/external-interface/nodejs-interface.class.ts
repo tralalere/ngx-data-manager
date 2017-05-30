@@ -67,9 +67,9 @@ export class NodeJsInterface implements ExternalInterface {
         return this.wallSubject.map(this.filterCollectionData, { type: entityType, wall: wall, self: this });
     }
 
-    /*getTypeFilteredObservable(entityType:string):Observable<DataEntityCollection> {
-
-    }*/
+    getTypeFilteredObservable(entityType:string):Observable<DataEntityCollection> {
+        return this.wallSubject.map(this.typeFilterCollectionData, { type: entityType, self: this });
+    }
     
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
         return this.messageSubject.map(this.filterEntityData, { self: this, command: command });
@@ -87,6 +87,19 @@ export class NodeJsInterface implements ExternalInterface {
 
         data.forEach((itemData:NodeJsDataInterface) => {
             if (this["wall"] === itemData.mur && this["type"] === itemData.type) {
+                filteredData.push(itemData);
+            }
+        });
+
+        return this["self"].mapToCollection(this["type"], filteredData);
+    }
+
+    typeFilterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
+        // filter on "type"
+        var filteredData:NodeJsDataInterface[] = [];
+
+        data.forEach((itemData:NodeJsDataInterface) => {
+            if (this["type"] === itemData.type) {
                 filteredData.push(itemData);
             }
         });
@@ -189,11 +202,20 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.collectionSubscriptions.push(deleteSubscription);
 
-        var obs:Observable<DataEntityCollection> = this.getWallAndTypeFilteredObservable(entityType, "test1");
+        var obs:Observable<DataEntityCollection>;
 
-        obs.subscribe(coll => console.log("COLLECTION DE BASE", coll));
+        if (params && params["wallid"]) {
+            obs = this.getWallAndTypeFilteredObservable(entityType, params["wallid"]);
+        } else {
+            obs = this.getTypeFilteredObservable(entityType);
+        }
 
-        return this.getWallAndTypeFilteredObservable(entityType, "test1");
+
+        var collectionSubscription:Subscription = obs.subscribe(coll => console.log("COLLECTION DE BASE", coll));
+
+        this.collectionSubscriptions.push(collectionSubscription);
+
+        return obs;
     }
 
     clearCollectionSubscriptions() {
@@ -209,7 +231,7 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     generateTempId():number {
-        return Math.floor(Math.random() * 100000);
+        return Math.floor(Math.random() * 100000000);
     }
 
     putEntity(entityType:string, datas:Object):Observable<DataEntity> {
