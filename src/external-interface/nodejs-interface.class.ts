@@ -24,6 +24,8 @@ export class NodeJsInterface implements ExternalInterface {
     messageEventType:string;
     wallEventType:string;
 
+    currentWallId:string;
+
     constructor(
         private manager:DataManagerService,
         private configuration:NodeJSInterfaceConfig
@@ -132,7 +134,7 @@ export class NodeJsInterface implements ExternalInterface {
     
     mapToEntity(data:NodeJsDataInterface):DataEntity {
         var entity:DataEntity = new DataEntity(data.data, data.type, this.manager);
-        entity.set("wallid", data.mur);
+        //entity.set("wallid", data.mur);
         return entity;
     }
 
@@ -149,7 +151,7 @@ export class NodeJsInterface implements ExternalInterface {
         var requestData:NodeJsDataInterface = {
             command: "update",
             data: entity.attributes,
-            mur: entity.get("wallid"),
+            mur: this.currentWallId,
             type: entity.type
         };
 
@@ -174,6 +176,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         if (params && params["wallid"]) {
             this.socket.emit('connexion', params["wallid"]);
+            this.currentWallId = params["wallid"];
         } else {
             this.socket.emit(entityType);
         }
@@ -226,26 +229,34 @@ export class NodeJsInterface implements ExternalInterface {
         this.collectionSubscriptions = [];
     }
 
-    createEntity(entityType:string, datas:Object):Observable<DataEntity> {
-        return this.putEntity(entityType, datas);
+    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
+        return this.putEntity(entityType, datas, params);
     }
 
     generateTempId():number {
         return Math.floor(Math.random() * 100000000);
     }
 
-    putEntity(entityType:string, datas:Object):Observable<DataEntity> {
+    putEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
 
         if (!datas["id"]) {
             datas["id"] = this.generateTempId();
         }
 
         var uid:string = uuid.v4();
+        
+        let wallid:string;
+
+        if (params && params["wallid"]) {
+            wallid = params["wallid"];
+        } else {
+            wallid = "test1";
+        }
 
         var requestData:NodeJsDataInterface = {
             command: "put",
             data: datas,
-            mur: "test1",
+            mur: this.currentWallId,
             type: entityType,
             uuid: uid
         };
@@ -253,18 +264,27 @@ export class NodeJsInterface implements ExternalInterface {
         this.socket.emit("message", requestData);
         var dt:DataEntity = new DataEntity(datas, entityType, this.manager);
 
-        this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(dt));
-        this.manager.entitiesCollectionsCache[entityType].dataEntities.push(dt);
+        //this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(dt));
+        //this.manager.entitiesCollectionsCache[entityType].dataEntities.push(dt);
 
         return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
 
-    deleteEntity(entity:DataEntity):Observable<Response> {
+    deleteEntity(entity:DataEntity, params:Object = null):Observable<Response> {
+
+        // pour la suppression, ça ne devrait pas être utile de récupérer le wallid
+        let wallid:string;
+
+        if (params && params["wallid"]) {
+            wallid = params["wallid"];
+        } else {
+            wallid = "test1";
+        }
 
         let requestData:NodeJsDataInterface = {
             command: "delete",
             data: entity.attributes,
-            mur: "test1",
+            mur: this.currentWallId,
             type: entity.type
         };
 

@@ -129,7 +129,7 @@ export class DrupalInterface implements ExternalInterface {
      * @param datas Données de création
      * @returns {Observable<DataEntity>} L'observable de l'entité créée
      */
-    createEntity(entityType:string, datas:Object):Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
 
         return this.http.post(this.getApiUrl(entityType) + entityType, JSON.stringify(datas), {
             headers: this.getHeaders()
@@ -137,7 +137,7 @@ export class DrupalInterface implements ExternalInterface {
             .map(this.extractEntity, {entityType: entityType, manager: this.manager}).catch(this.handleError);
     }
 
-    putEntity(entityType:string, datas:Object):Observable<DataEntity> {
+    putEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
 
         return this.http.put(this.getApiUrl(entityType) + entityType, JSON.stringify(datas), {
             headers: this.getHeaders()
@@ -149,9 +149,10 @@ export class DrupalInterface implements ExternalInterface {
     /**
      * Suppression de l'entité du serveur
      * @param entity entité à supprimer
+     * @param params
      * @returns {Observable<Response>} L'observable de suppression
      */
-    deleteEntity(entity:DataEntity):Observable<Response> {
+    deleteEntity(entity:DataEntity, params:Object = null):Observable<Response> {
         return this.http.delete(this.getApiUrl(entity.type) + entity.type + "/" + entity.id, {
             headers: this.getHeaders()
         });

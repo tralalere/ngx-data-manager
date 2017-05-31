@@ -315,7 +315,9 @@ export class DataManagerService {
         if (this.entitiesSubjects[entity.id]) {
             // case 1: entity already in cache
 
-            subject = this.entitiesSubjects[entity.id];
+            let index:number = this.getEntityIndexInCollection(entity);
+
+            subject = this.entitiesCollectionsCache[entity.type].entitiesObservables[index];
             subject.next(entity);
 
         } else {
@@ -345,11 +347,11 @@ export class DataManagerService {
      * @param datas Données d'initialisation
      * @returns {Observable<DataEntity>} L'observable de création
      */
-    createEntity(entityType:string, datas:Object):Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
-        this.getInterface(entityType).createEntity(entityType, datas)
+        this.getInterface(entityType).createEntity(entityType, datas, params)
             .subscribe((entity:DataEntity) => {
                     this.registerEntity(entity, subject);
                     subject.next(entity);
@@ -368,11 +370,18 @@ export class DataManagerService {
         return subject;
     }
 
-    putEntity(entityType:string, datas:Object):Observable<DataEntity> {
+    /**
+     * Put entity
+     * @param entityType
+     * @param datas
+     * @param params
+     * @returns {ReplaySubject<DataEntity>}
+     */
+    putEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
-        this.getInterface(entityType).putEntity(entityType, datas)
+        this.getInterface(entityType).putEntity(entityType, datas, params)
             .subscribe((entity:DataEntity) => {
                     this.registerEntity(entity, subject);
                     subject.next(entity);
@@ -402,13 +411,14 @@ export class DataManagerService {
     /**
      * Supprime une entité dans le provider de données
      * @param entity Entité à supprimer
+     * @param params
      * @returns {Observable<Response>} L'observable de suppression
      */
-    deleteEntity(entity:DataEntity):Observable<Response> {
+    deleteEntity(entity:DataEntity, params:Object = null):Observable<Response> {
 
         var subject:ReplaySubject<Response> = new ReplaySubject<Response>(1);
 
-        var observable:Observable<Response> = this.getInterface(entity.type).deleteEntity(entity);
+        var observable:Observable<Response> = this.getInterface(entity.type).deleteEntity(entity, params);
         observable.subscribe((response:Response) => {
             subject.next(response);
             this.unregisterEntity(entity);

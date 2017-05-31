@@ -19,9 +19,9 @@ export interface ExternalInterface {
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;
 
-    createEntity(entityType: string, datas:Object): Observable<DataEntity>;
-    putEntity(entityType: string, datas:Object): Observable<DataEntity>;
-    deleteEntity(entity: DataEntity): Observable<Response>;
+    createEntity(entityType: string, datas:Object, params:Object): Observable<DataEntity>;
+    putEntity(entityType: string, datas:Object, params:Object): Observable<DataEntity>;
+    deleteEntity(entity: DataEntity, params:Object): Observable<Response>;
     duplicateEntity(entity: DataEntity): Observable<DataEntity>;
     
     release();

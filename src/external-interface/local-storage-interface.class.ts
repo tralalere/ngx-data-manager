@@ -119,11 +119,11 @@ export class LocalStorageInterface implements ExternalInterface {
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;
 
-    createEntity(entityType:string, datas:Object): Observable<DataEntity> {
-        return this.putEntity(entityType, datas);
+    createEntity(entityType:string, datas:Object, params:Object = null): Observable<DataEntity> {
+        return this.putEntity(entityType, datas, params);
     }
 
-    putEntity(entityType:string, datas:Object): Observable<DataEntity> {
+    putEntity(entityType:string, datas:Object, params:Object = null): Observable<DataEntity> {
         datas["id"] = this.maxIndex;
         this.maxIndex++;
         this.saveIndex();
@@ -140,7 +140,7 @@ export class LocalStorageInterface implements ExternalInterface {
         return new BehaviorSubject<DataEntity>(entity);
     }
 
-    deleteEntity(entity:DataEntity): Observable<Response> {
+    deleteEntity(entity:DataEntity, params:Object = null): Observable<Response> {
         delete this.models[entity.type][String(entity.id)];
         this.saveStorageToIndex(entity.type);
         return new BehaviorSubject<Response>(null);
