@@ -88,7 +88,7 @@ export class NodeJsInterface implements ExternalInterface {
         var filteredData:NodeJsDataInterface[] = [];
 
         data.forEach((itemData:NodeJsDataInterface) => {
-            if (this["wall"] === itemData.mur && this["type"] === itemData.type) {
+            if (this["wall"] === itemData.data['mur'] && this["type"] === itemData.type) {
                 filteredData.push(itemData);
             }
         });
