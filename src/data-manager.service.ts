@@ -8,7 +8,7 @@ import {DataEntityCollection} from './data-entity-collection.class';
 import {DrupalInterface} from './external-interface/drupal-interface.class';
 import {LocalStorageInterface} from './external-interface/local-storage-interface.class';
 import {ExternalInterface} from './external-interface/external-interface.interface';
-import {Observable} from "rxjs/Rx";
+import {Observable, Subject} from "rxjs/Rx";
 import {ReplaySubject} from "rxjs/Rx";
 import {ConfigProvider} from "./config.provider";
 import {DataManagerConfig} from "./data-manager-config.interface";
@@ -317,7 +317,7 @@ export class DataManagerService {
 
             let index:number = this.getEntityIndexInCollection(entity);
 
-            subject = this.entitiesCollectionsCache[entity.type].entitiesObservables[index];
+            subject = this.entitiesCollectionsCache[entity.type].entitiesObservables[index] as ReplaySubject<DataEntity>;
             subject.next(entity);
 
         } else {
