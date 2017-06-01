@@ -17,7 +17,7 @@ export class NodeJsInterface implements ExternalInterface {
 
     socket;
     messageSubject:ReplaySubject<NodeJsDataInterface[]>;
-    wallSubject:ReplaySubject<NodeJsDataInterface[]>;
+    wallSubject:Map<String, ReplaySubject<NodeJsDataInterface[]>> = new Map();
 
     collectionSubscriptions:Subscription[];
 
@@ -34,15 +34,15 @@ export class NodeJsInterface implements ExternalInterface {
         this.wallEventType = configuration.wallEvent ? configuration.wallEvent : "retrieveMur";
 
 
-        this.init();
+        this.init("wall");
     }
 
-    init() {
+    init(type) {
         this.messageSubject = new ReplaySubject<NodeJsDataInterface[]>(1);
-        this.wallSubject = new ReplaySubject<NodeJsDataInterface[]>(1);
     }
 
-    initializeSocket() {
+    initializeSocket(type) {
+
         this.socket = io.connect(this.configuration.socketUrl);
 
         this.socket.on(this.messageEventType, (data:NodeJsDataInterface[]) => {
@@ -50,10 +50,7 @@ export class NodeJsInterface implements ExternalInterface {
             this.messageSubject.next(data);
         });
 
-        this.socket.on(this.wallEventType, (data:NodeJsDataInterface[]) => {
-            console.log("WALL DATA", data);
-            this.wallSubject.next(data);
-        });
+
     }
 
     clearSocket() {
@@ -66,11 +63,11 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     getWallAndTypeFilteredObservable(entityType:string, wall:string):Observable<DataEntityCollection> {
-        return this.wallSubject.map(this.filterCollectionData, { type: entityType, wall: wall, self: this });
+        return this.wallSubject.get(entityType).map(this.filterCollectionData, { type: entityType, wall: wall, self: this });
     }
 
     getTypeFilteredObservable(entityType:string):Observable<DataEntityCollection> {
-        return this.wallSubject.map(this.typeFilterCollectionData, { type: entityType, self: this });
+        return this.wallSubject.get(entityType).map(this.typeFilterCollectionData, { type: entityType, self: this });
     }
     
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
@@ -86,12 +83,16 @@ export class NodeJsInterface implements ExternalInterface {
     filterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
         // filter on "mur" and "type"
         var filteredData:NodeJsDataInterface[] = [];
+        console.log("mur:"+this["wall"]+" "+this["type"] + ": "+data.length);
 
         data.forEach((itemData:NodeJsDataInterface) => {
+            console.log("before " + this["wall"] + "=="+itemData.data['mur']+"? type "+ this["type"] + "=="+itemData.type+"? ");
             if (this["wall"] === itemData.data['mur'] && this["type"] === itemData.type) {
                 filteredData.push(itemData);
             }
         });
+        console.log("filteredData " + this["type"] + ": "+filteredData.length);
+
 
         return this["self"].mapToCollection(this["type"], filteredData);
     }
@@ -99,6 +100,7 @@ export class NodeJsInterface implements ExternalInterface {
     typeFilterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
         // filter on "type"
         var filteredData:NodeJsDataInterface[] = [];
+
 
         data.forEach((itemData:NodeJsDataInterface) => {
             if (this["type"] === itemData.type) {
@@ -167,10 +169,18 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
+        this.wallSubject.set(entityType, new ReplaySubject<NodeJsDataInterface[]>(1));
+
+
 
         if (!this.socket) {
-            this.initializeSocket();
+            this.initializeSocket(entityType);
         }
+
+        this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
+            console.log("WALL DATA", data);
+            this.wallSubject.get(entityType).next(data);
+        });
 
         this.collectionSubscriptions = [];
 
