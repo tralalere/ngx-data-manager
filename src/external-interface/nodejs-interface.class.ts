@@ -83,16 +83,12 @@ export class NodeJsInterface implements ExternalInterface {
     filterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
         // filter on "mur" and "type"
         var filteredData:NodeJsDataInterface[] = [];
-        console.log("mur:"+this["wall"]+" "+this["type"] + ": "+data.length);
 
         data.forEach((itemData:NodeJsDataInterface) => {
-            console.log("before " + this["wall"] + "=="+itemData.data['mur']+"? type "+ this["type"] + "=="+itemData.type+"? ");
             if (this["wall"] === itemData.data['mur'] && this["type"] === itemData.type) {
                 filteredData.push(itemData);
             }
         });
-        console.log("filteredData " + this["type"] + ": "+filteredData.length);
-
 
         return this["self"].mapToCollection(this["type"], filteredData);
     }
