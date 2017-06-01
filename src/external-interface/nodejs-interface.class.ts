@@ -175,7 +175,7 @@ export class NodeJsInterface implements ExternalInterface {
         this.collectionSubscriptions = [];
 
         if (params && params["wallid"]) {
-            this.socket.emit('connexion', params["wallid"]);
+            this.socket.emit('connexion', entityType, params["wallid"]);
             this.currentWallId = params["wallid"];
         } else {
             this.socket.emit(entityType);
