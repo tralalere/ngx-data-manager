@@ -71,7 +71,7 @@ export class NodeJsInterface implements ExternalInterface {
     }
     
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
-        return this.messageSubject.map(this.filterEntityData, { self: this, command: command });
+        return this.messageSubject.map(this.filterEntityData, { self: this, command: command, wall: this.currentWallId });
     }
 
     /*getUuidFilteredObservable(entityType:string, uid:string):Observable<NodeJsDataInterface[]> {
@@ -109,9 +109,10 @@ export class NodeJsInterface implements ExternalInterface {
     
     filterEntityData(data:NodeJsDataInterface[]):DataEntity[] {
         var entities:DataEntity[] = [];
-        
+
         data.forEach((itemData:NodeJsDataInterface) => {
-            if (itemData.command === this["command"]) {
+            // @TODO Replace occurences of wall to something like "filter[]"
+            if (itemData.command === this["command"] && this["wall"] === itemData.data['mur']) {
                 entities.push(this["self"].mapToEntity(itemData));
             }
         });
