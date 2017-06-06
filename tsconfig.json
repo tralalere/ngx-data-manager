@@ -5,6 +5,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
+    "declaration": true,
     "types": [
       "hammerjs",
       "jasmine",
