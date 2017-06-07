@@ -21,6 +21,7 @@ export * from "./src/external-interface/local-storage-interface-config.interface
 export * from "./src/external-interface/nodejs-interface-config.interface";
 
 export * from "./src/external-interface/nodejs-data.interface";
+export * from "./settings/Settings.class";
 
 @NgModule({
     providers: [
