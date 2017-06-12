@@ -180,8 +180,12 @@ export class DrupalInterface implements ExternalInterface {
 
         var url:string = this.getApiUrl(entityType) + entityType;
 
+        if (fields || params) {
+            url += "?";
+        }
+
         if (fields) {
-            url += "?fields=";
+            url += "fields=";
 
             for (let index = 0; index < fields.length; index++) {
                 url += fields[index];
@@ -189,6 +193,26 @@ export class DrupalInterface implements ExternalInterface {
                 if (index < fields.length - 1) {
                     url += ",";
                 }
+            }
+
+            if (params) {
+                url += "&";
+            }
+        }
+
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+
+                if (params[key] instanceof Array) {
+                    var tab:string[] = params[key];
+
+                    for (let val of tab) {
+                        url += "filter[" + key + "]=" + val + "&";
+                    }
+                } else {
+                    url += "filter[" + key + "]=" + params[key] + "&";
+                }
+
             }
         }
 
