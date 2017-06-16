@@ -296,6 +296,9 @@ export class NodeJsInterface implements ExternalInterface {
         };
 
         this.socket.emit("message", requestData);
+
+        this.manager.entitiesCollectionsCache[entity.type].propagateChanges();
+
         
         return new BehaviorSubject<Response>(null);
     }
