@@ -303,8 +303,26 @@ export class NodeJsInterface implements ExternalInterface {
         return new BehaviorSubject<Response>(null);
     }
 
-    duplicateEntity(entity:DataEntity):Observable<DataEntity> {
-        return null;
+    duplicateEntity(entity: DataEntity):Observable<DataEntity> {
+        let data_id = this.generateTempId();
+
+        var uid:string = uuid.v4();
+
+        var requestData:NodeJsDataInterface = {
+            command: "duplicate",
+            data: {label: "Copie du mur : "+entity.attributes['label'], id: data_id, sourceId: entity.id},
+            type: entity.type,
+            mur: this.currentWallId,
+            uuid: uid,
+        };
+
+        this.socket.emit("message", requestData);
+        var dt:DataEntity = new DataEntity(requestData.data, requestData.type, this.manager);
+
+        //this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(dt));
+        //this.manager.entitiesCollectionsCache[entityType].dataEntities.push(dt);
+
+        return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
 
     release() {

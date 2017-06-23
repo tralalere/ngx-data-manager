@@ -475,7 +475,27 @@ export class DataManagerService {
      * @returns {Observable<DataEntity>} L'observable de création de l'entité
      */
     duplicateEntity(entity:DataEntity):Observable<DataEntity> {
-        return null;
+        var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
+
+        let entityType = entity.type;
+
+        this.getInterface(entityType).duplicateEntity(entity)
+            .subscribe((entity:DataEntity) => {
+                    this.registerEntity(entity, subject);
+                    subject.next(entity);
+
+                    if (this.entitiesCollectionsCache[entityType]) {
+                        this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+                    }
+
+                    this.nextOnCollection(entityType);
+                },
+                (error:Object) => {
+                    subject.error(error);
+                });
+
+        return subject;
     }
 
 
