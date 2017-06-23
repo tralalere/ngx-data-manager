@@ -185,7 +185,7 @@ export class NodeJsInterface implements ExternalInterface {
             this.socket.emit('connexion', entityType, params["wallid"]);
             this.currentWallId = params["wallid"];
         } else {
-            this.socket.emit(entityType);
+            this.socket.emit(entityType, params || {});
         }
         
         let putSubscription:Subscription = this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
