@@ -26,6 +26,8 @@ export class NodeJsInterface implements ExternalInterface {
 
     currentWallId:string;
 
+    socketHandlers:{[key:string]:any} = {};
+
     constructor(
         private manager:DataManagerService,
         private configuration:NodeJSInterfaceConfig
@@ -50,16 +52,42 @@ export class NodeJsInterface implements ExternalInterface {
             this.messageSubject.next(data);
         });
 
+        this.collectionSubscriptions = [];
 
+        let putSubscription:Subscription = this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
+            entities.forEach((entity:DataEntity) => {
+                this.manager.checkAndRegisterEntity(entity);
+            });
+        });
+
+        this.collectionSubscriptions.push(putSubscription);
+
+        let updateSubscription:Subscription = this.getMappedEntitiesDatas("update").subscribe((entities:DataEntity[]) => {
+            entities.forEach((entity:DataEntity) => {
+                this.manager.checkAndRegisterEntity(entity);
+            });
+        });
+
+        this.collectionSubscriptions.push(updateSubscription);
+
+        let deleteSubscription:Subscription = this.getMappedEntitiesDatas("delete").subscribe((entities:DataEntity[]) => {
+            entities.forEach((entity:DataEntity) => {
+                this.manager.deleteAction(entity);
+            });
+        });
+
+        this.collectionSubscriptions.push(deleteSubscription);
     }
 
     clearSocket() {
-        this.socket.off(this.messageEventType);
-        this.socket.off(this.wallEventType);
+        if (this.socket) {
+            this.socket.off(this.messageEventType);
+            this.socket.off(this.wallEventType);
 
-        this.socket.disconnect();
+            this.socket.disconnect();
 
-        this.socket = null;
+            this.socket = null;
+        }
     }
 
     getWallAndTypeFilteredObservable(entityType:string, wall:string):Observable<DataEntityCollection> {
@@ -133,7 +161,6 @@ export class NodeJsInterface implements ExternalInterface {
     
     mapToEntity(data:NodeJsDataInterface):DataEntity {
         var entity:DataEntity = new DataEntity(data.data, data.type, this.manager);
-        //entity.set("wallid", data.mur);
         return entity;
     }
 
@@ -168,18 +195,16 @@ export class NodeJsInterface implements ExternalInterface {
     loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
         this.wallSubject.set(entityType, new ReplaySubject<NodeJsDataInterface[]>(1));
 
-
-
         if (!this.socket) {
             this.initializeSocket(entityType);
         }
 
-        this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
-            console.log("WALL DATA", data);
-            this.wallSubject.get(entityType).next(data);
-        });
+        if (!this.socketHandlers[entityType]) {
+            this.socketHandlers[entityType] = this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
+                this.wallSubject.get(entityType).next(data);
+            });
+        }
 
-        this.collectionSubscriptions = [];
 
         if (params && params["wallid"]) {
             this.socket.emit('connexion', entityType, params["wallid"]);
@@ -187,30 +212,6 @@ export class NodeJsInterface implements ExternalInterface {
         } else {
             this.socket.emit(entityType, params || {});
         }
-        
-        let putSubscription:Subscription = this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
-            entities.forEach((entity:DataEntity) => {
-                this.manager.checkAndRegisterEntity(entity);
-            });
-        });
-
-        this.collectionSubscriptions.push(putSubscription);
-
-        let updateSubscription:Subscription = this.getMappedEntitiesDatas("update").subscribe((entities:DataEntity[]) => {
-            entities.forEach((entity:DataEntity) => {
-                this.manager.checkAndRegisterEntity(entity);
-            });
-        });
-
-        this.collectionSubscriptions.push(updateSubscription);
-
-        let deleteSubscription:Subscription = this.getMappedEntitiesDatas("delete").subscribe((entities:DataEntity[]) => {
-            entities.forEach((entity:DataEntity) => {
-                this.manager.deleteAction(entity);
-            });
-        });
-
-        this.collectionSubscriptions.push(deleteSubscription);
 
         var obs:Observable<DataEntityCollection>;
 
@@ -219,11 +220,6 @@ export class NodeJsInterface implements ExternalInterface {
         } else {
             obs = this.getTypeFilteredObservable(entityType);
         }
-
-
-        var collectionSubscription:Subscription = obs.subscribe(coll => console.log("COLLECTION DE BASE", coll));
-
-        this.collectionSubscriptions.push(collectionSubscription);
 
         return obs;
     }
@@ -270,9 +266,6 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.socket.emit("message", requestData);
         var dt:DataEntity = new DataEntity(datas, entityType, this.manager);
-
-        //this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(dt));
-        //this.manager.entitiesCollectionsCache[entityType].dataEntities.push(dt);
 
         return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
@@ -326,6 +319,7 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     release() {
+        console.log("RELEASE");
         this.clearCollectionSubscriptions();
         this.clearSocket();
     }
