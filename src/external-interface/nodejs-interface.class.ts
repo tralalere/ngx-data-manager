@@ -56,17 +56,35 @@ export class NodeJsInterface implements ExternalInterface {
             console.log('Connection Failed');
         });
 
-        this.socket.on('connect', function(){
+        this.socket.on('connect', () => {
             console.log('Connected');
+            this.sendReconnectionEvent();
         });
 
-        this.socket.on('disconnect', function () {
+        this.socket.on('disconnect', () => {
             console.log('Disconnected');
+            this.sendDisconnectionEvent();
         });
 
         this.socket.on('error', function () {
-            console.log('Disconnected');
+            console.log('Disconnected !!!');
         });
+    }
+
+    sendDisconnectionEvent() {
+        for (let key in this.socketHandlers) {
+            if (this.socketHandlers.hasOwnProperty(key)) {
+                this.manager.enabledEndPoints[key] = false;
+            }
+        }
+    }
+
+    sendReconnectionEvent() {
+        for (let key in this.socketHandlers) {
+            if (this.socketHandlers.hasOwnProperty(key)) {
+                this.manager.enabledEndPoints[key] = true;
+            }
+        }
     }
 
     initSubscriptions() {

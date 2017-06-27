@@ -22,12 +22,13 @@ export class DataManagerService {
 
     private interfaces:{[key:string]:ExternalInterface} = {};
 
-
     entitiesCollectionsCache:{[key:string]:DataEntityCollection} = {};
     entitiesCollectionsSubjects:{[key:string]:ReplaySubject<DataEntityCollection>} = {};
     pendingCollectionsSubjects:{[key:string]:ReplaySubject<DataEntityCollection>} = {};
     entitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
     pendingEntitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
+    
+    enabledEndPoints:{[key:string]:boolean} = {};
 
     constructor(
         public http:Http,
@@ -102,6 +103,8 @@ export class DataManagerService {
         var subject:ReplaySubject<DataEntityCollection>;
         var tSubject:ReplaySubject<DataEntityCollection> = new ReplaySubject<DataEntityCollection>(1);
 
+        this.enabledEndPoints[entityType] = true;
+
         if (!this.entitiesCollectionsSubjects[entityType] || forceLoading) {
 
             subject = new ReplaySubject<DataEntityCollection>(1);
@@ -142,8 +145,8 @@ export class DataManagerService {
             }
 
         }
-
-        return tSubject;
+        
+        return subject;
     }
 
 
@@ -537,6 +540,7 @@ export class DataManagerService {
 
 
     registerEntityCollectionSubject(collectionType:string, subject:ReplaySubject<DataEntityCollection>) {
+        console.log("register " + collectionType);
         if (!this.entitiesCollectionsSubjects[collectionType]) {
             this.entitiesCollectionsSubjects[collectionType] = subject;
         }
