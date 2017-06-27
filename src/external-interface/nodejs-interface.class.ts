@@ -52,6 +52,24 @@ export class NodeJsInterface implements ExternalInterface {
             this.messageSubject.next(data);
         });
 
+        this.socket.on('connect_failed', function(){
+            console.log('Connection Failed');
+        });
+
+        this.socket.on('connect', function(){
+            console.log('Connected');
+        });
+
+        this.socket.on('disconnect', function () {
+            console.log('Disconnected');
+        });
+
+        this.socket.on('error', function () {
+            console.log('Disconnected');
+        });
+    }
+
+    initSubscriptions() {
         this.collectionSubscriptions = [];
 
         let putSubscription:Subscription = this.getMappedEntitiesDatas("put").subscribe((entities:DataEntity[]) => {
@@ -64,6 +82,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         let updateSubscription:Subscription = this.getMappedEntitiesDatas("update").subscribe((entities:DataEntity[]) => {
             entities.forEach((entity:DataEntity) => {
+                console.log("update", entity);
                 this.manager.checkAndRegisterEntity(entity);
             });
         });
@@ -99,6 +118,7 @@ export class NodeJsInterface implements ExternalInterface {
     }
     
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
+        console.log(this.currentWallId);
         return this.messageSubject.map(this.filterEntityData, { self: this, command: command, wall: this.currentWallId });
     }
 
@@ -181,9 +201,15 @@ export class NodeJsInterface implements ExternalInterface {
             type: entity.type
         };
 
-        console.log("SAVE", requestData);
+        console.log("SAVE_n", requestData);
 
-        this.socket.emit("message", requestData);
+        this.socket.emit("message", requestData, (err, resp) => {
+            if (err) {
+                alert ("err");
+            }
+
+            console.log(resp);
+        });
 
         return new BehaviorSubject<DataEntity>(entity);
     }
@@ -213,6 +239,8 @@ export class NodeJsInterface implements ExternalInterface {
             this.socket.emit(entityType, params || {});
         }
 
+        this.initSubscriptions();
+
         var obs:Observable<DataEntityCollection>;
 
         if (params && params["wallid"]) {
@@ -225,6 +253,8 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     clearCollectionSubscriptions() {
+        console.log("clear !!");
+
         this.collectionSubscriptions.forEach((subscription:Subscription) => {
             subscription.unsubscribe();
         });
