@@ -21,12 +21,16 @@ export class NodeJsInterface implements ExternalInterface {
 
     collectionSubscriptions:Subscription[];
 
+
     messageEventType:string;
     wallEventType:string;
 
     currentWallId:string;
 
     socketHandlers:{[key:string]:any} = {};
+    hasSuccess:boolean = false;
+    initialized:boolean = false;
+    socketTry:number = 0;
 
     constructor(
         private manager:DataManagerService,
@@ -35,7 +39,6 @@ export class NodeJsInterface implements ExternalInterface {
         this.messageEventType = configuration.messageEvent ? configuration.messageEvent : "message";
         this.wallEventType = configuration.wallEvent ? configuration.wallEvent : "retrieveMur";
 
-
         this.init("wall");
     }
 
@@ -43,9 +46,24 @@ export class NodeJsInterface implements ExternalInterface {
         this.messageSubject = new ReplaySubject<NodeJsDataInterface[]>(1);
     }
 
-    initializeSocket(type) {
+    initializeSocket() {
 
-        this.socket = io.connect(this.configuration.socketUrl);
+        let socketUrl:string;
+
+        if (typeof this.configuration.socketUrl === "string") {
+            socketUrl = this.configuration.socketUrl as string;
+        } else if (this.configuration.socketUrl instanceof Array) {
+            socketUrl = this.configuration.socketUrl[this.socketTry];
+        }
+
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket.close();
+        }
+
+        this.socket = io(socketUrl);
+        console.log(this.socket);
+        this.socket.io.timeout(4000);
 
         this.socket.on(this.messageEventType, (data:NodeJsDataInterface[]) => {
             console.log("MESSAGE DATA: ", data);
@@ -56,9 +74,56 @@ export class NodeJsInterface implements ExternalInterface {
             console.log('Connection Failed');
         });
 
+        this.socket.on('connect_error', () => {
+            console.log('Connection Error');
+
+            if (!this.hasSuccess) {
+                if (typeof this.configuration.socketUrl === "string") {
+                    //
+                } else if (this.configuration.socketUrl instanceof Array) {
+                    // oui ou non :)
+
+                    this.socketTry++;
+
+                    if (this.socketTry > this.configuration.socketUrl.length - 1) {
+
+                    } else {
+                        this.initializeSocket();
+
+                        for (let key in this.socketHandlers) {
+                            if (this.socketHandlers.hasOwnProperty(key)) {
+
+                                if (this.socketHandlers[key] !== null && this.socketHandlers[key]["wallid"]) {
+                                    this.socket.emit('connexion', key, this.socketHandlers[key]["wallid"]);
+                                } else {
+                                    this.socket.emit(key, this.socketHandlers[key] || {});
+                                }
+
+                                this.socket.on("retrieve"+key, (data:NodeJsDataInterface[]) => {
+                                    this.wallSubject.get(key).next(data);
+                                });
+
+                            }
+                        }
+
+
+                    }
+                }
+            }
+        });
+
+        this.socket.on('error', function(){
+            console.log('Error');
+        });
+
+
         this.socket.on('connect', () => {
             console.log('Connected');
             this.sendReconnectionEvent();
+        });
+
+        this.socket.on('reconnecting', () => {
+            console.log('reconnecting');
         });
 
         this.socket.on('disconnect', () => {
@@ -69,6 +134,8 @@ export class NodeJsInterface implements ExternalInterface {
         this.socket.on('error', function () {
             console.log('Disconnected !!!');
         });
+
+        this.initialized = true;
     }
 
     sendDisconnectionEvent() {
@@ -80,6 +147,8 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     sendReconnectionEvent() {
+        this.hasSuccess = true;
+
         for (let key in this.socketHandlers) {
             if (this.socketHandlers.hasOwnProperty(key)) {
                 this.manager.enabledEndPoints[key] = true;
@@ -134,17 +203,11 @@ export class NodeJsInterface implements ExternalInterface {
     getTypeFilteredObservable(entityType:string):Observable<DataEntityCollection> {
         return this.wallSubject.get(entityType).map(this.typeFilterCollectionData, { type: entityType, self: this });
     }
-    
+
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
         console.log(this.currentWallId);
         return this.messageSubject.map(this.filterEntityData, { self: this, command: command, wall: this.currentWallId });
     }
-
-    /*getUuidFilteredObservable(entityType:string, uid:string):Observable<NodeJsDataInterface[]> {
-        return this.messageSubject.filter((data:NodeJsDataInterface[]) => {
-            return data.type === entityType && data.uuid === uid;
-        });
-    }*/
 
     filterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
         // filter on "mur" and "type"
@@ -172,7 +235,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         return this["self"].mapToCollection(this["type"], filteredData);
     }
-    
+
     filterEntityData(data:NodeJsDataInterface[]):DataEntity[] {
         var entities:DataEntity[] = [];
 
@@ -182,7 +245,7 @@ export class NodeJsInterface implements ExternalInterface {
                 entities.push(this["self"].mapToEntity(itemData));
             }
         });
-        
+
         return entities;
     }
 
@@ -196,14 +259,14 @@ export class NodeJsInterface implements ExternalInterface {
 
         return new DataEntityCollection(mapData, entityType, this.manager);
     }
-    
+
     mapToEntity(data:NodeJsDataInterface):DataEntity {
         var entity:DataEntity = new DataEntity(data.data, data.type, this.manager);
         return entity;
     }
 
     getEntity(entityType:string):Observable<DataEntity> {
-         return null;
+        return null;
     }
 
     loadEntity(entityType:string, entityId:any):Observable<DataEntity> {
@@ -223,7 +286,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.socket.emit("message", requestData, (err, resp) => {
             if (err) {
-                alert ("err");
+                //alert ("err");
             }
 
             console.log(resp);
@@ -236,19 +299,23 @@ export class NodeJsInterface implements ExternalInterface {
         return null;
     }
 
+    loadPendingEntityCollectionRequest(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
+        return null;
+    }
+
     loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
         this.wallSubject.set(entityType, new ReplaySubject<NodeJsDataInterface[]>(1));
 
         if (!this.socket) {
-            this.initializeSocket(entityType);
+            this.initializeSocket();
         }
 
         if (!this.socketHandlers[entityType]) {
-            this.socketHandlers[entityType] = this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
+            this.socketHandlers[entityType] = params;
+            this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
                 this.wallSubject.get(entityType).next(data);
             });
         }
-
 
         if (params && params["wallid"]) {
             this.socket.emit('connexion', entityType, params["wallid"]);
@@ -271,7 +338,6 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     clearCollectionSubscriptions() {
-        console.log("clear !!");
 
         this.collectionSubscriptions.forEach((subscription:Subscription) => {
             subscription.unsubscribe();
@@ -295,7 +361,7 @@ export class NodeJsInterface implements ExternalInterface {
         }
 
         var uid:string = uuid.v4();
-        
+
         let wallid:string;
 
         if (params && params["wallid"]) {
@@ -340,7 +406,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.manager.entitiesCollectionsCache[entity.type].propagateChanges();
 
-        
+
         return new BehaviorSubject<Response>(null);
     }
 
@@ -359,9 +425,6 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.socket.emit("message", requestData);
         var dt:DataEntity = new DataEntity(requestData.data, requestData.type, this.manager);
-
-        //this.manager.entitiesCollectionsCache[entityType].entitiesObservables.push(new BehaviorSubject<DataEntity>(dt));
-        //this.manager.entitiesCollectionsCache[entityType].dataEntities.push(dt);
 
         return new BehaviorSubject<DataEntity>(this.mapToEntity(requestData));
     }
