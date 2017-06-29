@@ -27,7 +27,7 @@ export class NodeJsInterface implements ExternalInterface {
 
     currentWallId:string;
 
-    socketHandlers:{[key:string]:any} = {};
+    socketHandlersParams:{[key:string]:any} = {};
     hasSuccess:boolean = false;
     initialized:boolean = false;
     socketTry:number = 0;
@@ -44,6 +44,18 @@ export class NodeJsInterface implements ExternalInterface {
 
     init(type) {
         this.messageSubject = new ReplaySubject<NodeJsDataInterface[]>(1);
+    }
+
+    connectionAndRetrieve(key:string, params:Object = null) {
+        if (params !== null && params["wallid"]) {
+            this.socket.emit('connexion', key, params["wallid"]);
+        } else {
+            this.socket.emit(key, params || {});
+        }
+
+        this.socket.on("retrieve"+key, (data:NodeJsDataInterface[]) => {
+            this.wallSubject.get(key).next(data);
+        });
     }
 
     initializeSocket() {
@@ -90,23 +102,12 @@ export class NodeJsInterface implements ExternalInterface {
                     } else {
                         this.initializeSocket();
 
-                        for (let key in this.socketHandlers) {
-                            if (this.socketHandlers.hasOwnProperty(key)) {
+                        for (let key in this.socketHandlersParams) {
 
-                                if (this.socketHandlers[key] !== null && this.socketHandlers[key]["wallid"]) {
-                                    this.socket.emit('connexion', key, this.socketHandlers[key]["wallid"]);
-                                } else {
-                                    this.socket.emit(key, this.socketHandlers[key] || {});
-                                }
-
-                                this.socket.on("retrieve"+key, (data:NodeJsDataInterface[]) => {
-                                    this.wallSubject.get(key).next(data);
-                                });
-
+                            if (this.socketHandlersParams.hasOwnProperty(key)) {
+                                this.connectionAndRetrieve(key, this.socketHandlersParams[key]);
                             }
                         }
-
-
                     }
                 }
             }
@@ -116,10 +117,9 @@ export class NodeJsInterface implements ExternalInterface {
             console.log('Error');
         });
 
-
         this.socket.on('connect', () => {
             console.log('Connected');
-            this.sendReconnectionEvent();
+            this.onConnection();
         });
 
         this.socket.on('reconnecting', () => {
@@ -128,7 +128,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.socket.on('disconnect', () => {
             console.log('Disconnected');
-            this.sendDisconnectionEvent();
+            this.onDisconnection();
         });
 
         this.socket.on('error', function () {
@@ -138,19 +138,19 @@ export class NodeJsInterface implements ExternalInterface {
         this.initialized = true;
     }
 
-    sendDisconnectionEvent() {
-        for (let key in this.socketHandlers) {
-            if (this.socketHandlers.hasOwnProperty(key)) {
+    onDisconnection() {
+        for (let key in this.socketHandlersParams) {
+            if (this.socketHandlersParams.hasOwnProperty(key)) {
                 this.manager.enabledEndPoints[key] = false;
             }
         }
     }
 
-    sendReconnectionEvent() {
+    onConnection() {
         this.hasSuccess = true;
 
-        for (let key in this.socketHandlers) {
-            if (this.socketHandlers.hasOwnProperty(key)) {
+        for (let key in this.socketHandlersParams) {
+            if (this.socketHandlersParams.hasOwnProperty(key)) {
                 this.manager.enabledEndPoints[key] = true;
             }
         }
@@ -282,7 +282,7 @@ export class NodeJsInterface implements ExternalInterface {
             type: entity.type
         };
 
-        console.log("SAVE_n", requestData);
+        console.log("SAVE", requestData);
 
         this.socket.emit("message", requestData, (err, resp) => {
             if (err) {
@@ -310,19 +310,11 @@ export class NodeJsInterface implements ExternalInterface {
             this.initializeSocket();
         }
 
-        if (!this.socketHandlers[entityType]) {
-            this.socketHandlers[entityType] = params;
-            this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
-                this.wallSubject.get(entityType).next(data);
-            });
+        if (!this.socketHandlersParams[entityType]) {
+            this.socketHandlersParams[entityType] = params;
         }
 
-        if (params && params["wallid"]) {
-            this.socket.emit('connexion', entityType, params["wallid"]);
-            this.currentWallId = params["wallid"];
-        } else {
-            this.socket.emit(entityType, params || {});
-        }
+        this.connectionAndRetrieve(entityType, params);
 
         this.initSubscriptions();
 
