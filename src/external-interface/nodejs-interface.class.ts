@@ -91,14 +91,13 @@ export class NodeJsInterface implements ExternalInterface {
 
             if (!this.hasSuccess) {
                 if (typeof this.configuration.socketUrl === "string") {
-                    //
+                    this.setEndPointsValidityBooleans(false);
                 } else if (this.configuration.socketUrl instanceof Array) {
-                    // oui ou non :)
 
                     this.socketTry++;
 
                     if (this.socketTry > this.configuration.socketUrl.length - 1) {
-
+                        this.setEndPointsValidityBooleans(false);
                     } else {
                         this.initializeSocket();
 
@@ -139,19 +138,18 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     onDisconnection() {
-        for (let key in this.socketHandlersParams) {
-            if (this.socketHandlersParams.hasOwnProperty(key)) {
-                this.manager.enabledEndPoints[key] = false;
-            }
-        }
+        this.setEndPointsValidityBooleans(false);
     }
 
     onConnection() {
         this.hasSuccess = true;
+        this.setEndPointsValidityBooleans(true);
+    }
 
+    setEndPointsValidityBooleans(value:boolean) {
         for (let key in this.socketHandlersParams) {
             if (this.socketHandlersParams.hasOwnProperty(key)) {
-                this.manager.enabledEndPoints[key] = true;
+                this.manager.enabledEndPoints[key] = value;
             }
         }
     }
@@ -284,22 +282,12 @@ export class NodeJsInterface implements ExternalInterface {
 
         console.log("SAVE", requestData);
 
-        this.socket.emit("message", requestData, (err, resp) => {
-            if (err) {
-                //alert ("err");
-            }
-
-            console.log(resp);
-        });
+        this.socket.emit("message", requestData);
 
         return new BehaviorSubject<DataEntity>(entity);
     }
 
     saveRawEntity(entity:DataEntity):Observable<DataEntity> {
-        return null;
-    }
-
-    loadPendingEntityCollectionRequest(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
         return null;
     }
 
@@ -315,6 +303,8 @@ export class NodeJsInterface implements ExternalInterface {
         }
 
         this.connectionAndRetrieve(entityType, params);
+
+        //this.manager.enabledEndPoints[entityType] = false;
 
         this.initSubscriptions();
 
