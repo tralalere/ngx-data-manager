@@ -1,6 +1,6 @@
 {
   "name": "ngx-data-manager",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "main": "bundles/data-manager.umd.js",
   "scripts": {
@@ -15,16 +15,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cvimbert/ngx-data-manager.git"
+    "url": "git+https://github.com/tralalere/ngx-data-manager.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cvimbert/ngx-data-manager/issues"
+    "url": "https://github.com/tralalere/ngx-data-manager/issues"
   },
   "module": "index.js",
   "typings": "index.d.ts",
-  "homepage": "https://github.com/cvimbert/ngx-data-manager#readme",
+  "homepage": "https://github.com/tralalere/ngx-data-manager#readme",
   "peerDependencies": {
     "@angular/core": ">=2.0.0"
   },
