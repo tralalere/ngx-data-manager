@@ -85,6 +85,10 @@ export class DataEntity extends DataStructure {
         this._clonedAttributes = null;
     }
 
+    invalidateClonedAttributes() {
+        this._clonedAttributes = null;
+    }
+
 
     /**
      * Clone l'entité
