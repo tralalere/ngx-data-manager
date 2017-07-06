@@ -8,7 +8,10 @@ import {Response} from "@angular/http";
 
 export class DataEntity extends DataStructure {
 
-    attributes: Object = {};
+    attributes:Object = {};
+
+    private _clonedAttributes:Object;
+
     referenceObject:Object;
     type:string;
     id:number;
@@ -63,6 +66,21 @@ export class DataEntity extends DataStructure {
 
         console.log("L'attribut " + attributeName + " n'existe pas au sein de cet objet.");
         return null;
+    }
+
+
+    get clonedAttributes():Object {
+        this._clonedAttributes = JSON.parse(JSON.stringify(this.attributes));
+        return this._clonedAttributes;
+    }
+
+
+    validateClonedAttributes() {
+        for (let key in this._clonedAttributes) {
+            if (this._clonedAttributes.hasOwnProperty(key)) {
+                this.attributes[key] = this._clonedAttributes[key];
+            }
+        }
     }
 
 
