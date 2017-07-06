@@ -81,6 +81,8 @@ export class DataEntity extends DataStructure {
                 this.attributes[key] = this._clonedAttributes[key];
             }
         }
+
+        this._clonedAttributes = null;
     }
 
 
@@ -135,6 +137,10 @@ export class DataEntity extends DataStructure {
      * @returns {Observable<DataEntity>} L'observer de l'objet
      */
     save(applyDiff:boolean = true):Observable<DataEntity> {
+
+        if (this._clonedAttributes) {
+            this.validateClonedAttributes();
+        }
 
         var observable:Observable<DataEntity>;
 
