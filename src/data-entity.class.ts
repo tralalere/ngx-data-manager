@@ -69,9 +69,13 @@ export class DataEntity extends DataStructure {
     }
 
 
-    get clonedAttributes():Object {
-        this._clonedAttributes = JSON.parse(JSON.stringify(this.attributes));
+    get getClonedAttributes():Object {
         return this._clonedAttributes;
+    }
+
+    clonedAttributes():Object {
+        this._clonedAttributes = JSON.parse(JSON.stringify(this.attributes));
+        return this;
     }
 
 
@@ -81,8 +85,6 @@ export class DataEntity extends DataStructure {
                 this.attributes[key] = this._clonedAttributes[key];
             }
         }
-
-        this._clonedAttributes = null;
     }
 
     invalidateClonedAttributes() {
