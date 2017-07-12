@@ -52,7 +52,6 @@ export class NodeJsInterface implements ExternalInterface {
         } else {
             this.socket.emit(key, params || {});
         }
-
         this.socket.on("retrieve"+key, (data:NodeJsDataInterface[]) => {
             this.wallSubject.get(key).next(data);
         });
@@ -300,11 +299,17 @@ export class NodeJsInterface implements ExternalInterface {
 
         if (!this.socketHandlersParams[entityType]) {
             this.socketHandlersParams[entityType] = params;
+            this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
+                this.wallSubject.get(entityType).next(data);
+            });
         }
 
-        this.connectionAndRetrieve(entityType, params);
-
-        //this.manager.enabledEndPoints[entityType] = false;
+        if (params && params["wallid"]) {
+            this.socket.emit('connexion', entityType, params["wallid"]);
+            this.currentWallId = params["wallid"];
+        } else {
+            this.socket.emit(entityType, params || {});
+        }
 
         this.initSubscriptions();
 
