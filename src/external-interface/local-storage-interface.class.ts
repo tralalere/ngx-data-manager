@@ -8,6 +8,7 @@ import {DataEntity} from "../data-entity.class";
 import {DataEntityCollection} from "../data-entity-collection.class";
 import {Response} from "@angular/http";
 import {LocalStorageInterfaceConfig} from "./local-storage-interface-config.interface";
+import {elementAt} from "rxjs/operator/elementAt";
 
 export class LocalStorageInterface implements ExternalInterface {
 
@@ -110,6 +111,20 @@ export class LocalStorageInterface implements ExternalInterface {
             if (this.models[entityType].hasOwnProperty(key)) {
                 collectionArray.push(this.models[entityType][key]);
             }
+        }
+
+        if (params) {
+            collectionArray = collectionArray.filter(element => {
+                for (let key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        if (params[key] !== element[key]) {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            });
         }
 
         var collection:DataEntityCollection = new DataEntityCollection(collectionArray, entityType, this.manager);
