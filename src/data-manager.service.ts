@@ -540,10 +540,9 @@ export class DataManagerService {
 
 
     registerEntityCollectionSubject(collectionType:string, subject:ReplaySubject<DataEntityCollection>) {
-        console.log("register " + collectionType);
-        if (!this.entitiesCollectionsSubjects[collectionType]) {
+        //if (!this.entitiesCollectionsSubjects[collectionType]) {
             this.entitiesCollectionsSubjects[collectionType] = subject;
-        }
+        //}
     }
 
 

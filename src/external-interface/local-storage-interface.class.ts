@@ -36,8 +36,6 @@ export class LocalStorageInterface implements ExternalInterface {
     conditionalLoadStorageFromIndex(key:string) {
         if (!this.models[key]) {
             this.loadStorageFromIndex(key);
-        } else {
-            this.models[key] = {};
         }
     }
 
