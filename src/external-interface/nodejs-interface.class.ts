@@ -193,6 +193,10 @@ export class NodeJsInterface implements ExternalInterface {
         }
     }
 
+    getParamsAndTypeFilteredObservable(entityType:string, params:Object):Observable<DataEntityCollection> {
+        return this.wallSubject.get(entityType).map(this.typeObjectFilterCollectionData, { type: entityType, params: params, self: this });
+    }
+
     getWallAndTypeFilteredObservable(entityType:string, wall:string):Observable<DataEntityCollection> {
         return this.wallSubject.get(entityType).map(this.filterCollectionData, { type: entityType, wall: wall, self: this });
     }
@@ -202,8 +206,45 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     getMappedEntitiesDatas(command:string):Observable<DataEntity[]> {
-        console.log(this.currentWallId);
         return this.messageSubject.map(this.filterEntityData, { self: this, command: command, wall: this.currentWallId });
+    }
+
+    paramsEquality(itemData:NodeJsDataInterface, params:Object):boolean {
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+                if (params[key] !== itemData.data[key]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    typeObjectFilterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
+
+        function paramsEquality(itemData:NodeJsDataInterface, params:Object):boolean {
+            for (let key in params) {
+                if (params.hasOwnProperty(key)) {
+                    if (params[key] !== itemData.data[key]) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        var filteredData:NodeJsDataInterface[] = [];
+        var params:Object = this["params"];
+
+        data.forEach((itemData:NodeJsDataInterface) => {
+            if (paramsEquality(itemData, params) && this["type"] === itemData.type) {
+                filteredData.push(itemData);
+            }
+        });
+
+        return this["self"].mapToCollection(this["type"], filteredData);
     }
 
     filterCollectionData(data:NodeJsDataInterface[]):DataEntityCollection {
@@ -315,8 +356,12 @@ export class NodeJsInterface implements ExternalInterface {
 
         var obs:Observable<DataEntityCollection>;
 
+
+
         if (params && params["wallid"]) {
             obs = this.getWallAndTypeFilteredObservable(entityType, params["wallid"]);
+        } else if (params) {
+            obs = this.getParamsAndTypeFilteredObservable(entityType, params);
         } else {
             obs = this.getTypeFilteredObservable(entityType);
         }
