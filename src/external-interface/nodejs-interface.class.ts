@@ -21,6 +21,7 @@ export class NodeJsInterface implements ExternalInterface {
 
     collectionSubscriptions:Subscription[];
 
+    paramsByEndpoint:{[key:string]:Object} = {};
 
     messageEventType:string;
     wallEventType:string;
@@ -73,7 +74,6 @@ export class NodeJsInterface implements ExternalInterface {
         }
 
         this.socket = io(socketUrl);
-        console.log(this.socket);
         this.socket.io.timeout(4000);
 
         this.socket.on(this.messageEventType, (data:NodeJsDataInterface[]) => {
@@ -153,6 +153,14 @@ export class NodeJsInterface implements ExternalInterface {
         }
     }
 
+    endpointFilterValidity(data:NodeJsDataInterface):boolean {
+        if (!this.paramsByEndpoint[data["type"]]) {
+            return true;
+        } else {
+            return this.paramsEquality(data, this.paramsByEndpoint[data["type"]]);
+        }
+    }
+
     initSubscriptions() {
         this.collectionSubscriptions = [];
 
@@ -166,7 +174,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         let updateSubscription:Subscription = this.getMappedEntitiesDatas("update").subscribe((entities:DataEntity[]) => {
             entities.forEach((entity:DataEntity) => {
-                console.log("update", entity);
+                //console.log("update", entity);
                 this.manager.checkAndRegisterEntity(entity);
             });
         });
@@ -213,6 +221,18 @@ export class NodeJsInterface implements ExternalInterface {
         for (let key in params) {
             if (params.hasOwnProperty(key)) {
                 if (params[key] !== itemData.data[key]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    paramsEntityEquality(data:DataEntity, params:Object):boolean {
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+                if (params[key] !== data.get(key)) {
                     return false;
                 }
             }
@@ -279,7 +299,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         data.forEach((itemData:NodeJsDataInterface) => {
             // @TODO Replace occurences of wall to something like "filter[]"
-            if (itemData.command === this["command"] && this["wall"] === itemData.data['mur']) {
+            if (itemData.command === this["command"] && this["wall"] === itemData.data['mur'] && this["self"].endpointFilterValidity(itemData)) {
                 entities.push(this["self"].mapToEntity(itemData));
             }
         });
@@ -332,6 +352,9 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
+
+        this.paramsByEndpoint[entityType] = params;
+
         this.wallSubject.set(entityType, new ReplaySubject<NodeJsDataInterface[]>(1));
 
         if (!this.socket) {
@@ -355,8 +378,6 @@ export class NodeJsInterface implements ExternalInterface {
         this.initSubscriptions();
 
         var obs:Observable<DataEntityCollection>;
-
-
 
         if (params && params["wallid"]) {
             obs = this.getWallAndTypeFilteredObservable(entityType, params["wallid"]);
