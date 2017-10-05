@@ -1,6 +1,6 @@
 {
   "name": "ngx-data-manager",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "",
   "main": "bundles/data-manager.umd.js",
   "scripts": {
