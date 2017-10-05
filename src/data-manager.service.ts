@@ -318,7 +318,18 @@ export class DataManagerService {
         if (this.entitiesSubjects[entity.id]) {
             // case 1: entity already in cache
 
+            // properties copy
             let index:number = this.getEntityIndexInCollection(entity);
+
+            let targetEntity:DataEntity = this.entitiesCollectionsCache[entity.type].getEntityById(entity.id);
+
+            if (targetEntity) {
+                for (let prop in entity.attributes) {
+                    if (entity.attributes.hasOwnProperty(prop)) {
+                        targetEntity.attributes[prop] = entity.attributes[prop];
+                    }
+                }
+            }
 
             subject = this.entitiesCollectionsCache[entity.type].entitiesObservables[index] as ReplaySubject<DataEntity>;
             subject.next(entity);

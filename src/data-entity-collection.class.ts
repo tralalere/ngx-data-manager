@@ -79,6 +79,18 @@ export class DataEntityCollection extends DataStructure {
             console.log("Tentative de suppression d'une entité inexistante");
         }
     }
+    
+    
+    getEntityById(entityId:number):DataEntity {
+        
+        for (let entity of this.dataEntities) {
+            if (entity.id === entityId) {
+                return entity;
+            }
+        }
+        
+        return null;
+    }
 
 
     /**
