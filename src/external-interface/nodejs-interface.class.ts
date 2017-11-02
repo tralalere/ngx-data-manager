@@ -143,6 +143,27 @@ export class NodeJsInterface implements ExternalInterface {
     onConnection() {
         this.hasSuccess = true;
         this.setEndPointsValidityBooleans(true);
+
+        for (let key in this.socketHandlersParams) {
+
+            if (this.socketHandlersParams.hasOwnProperty(key)) {
+                this.connectionAndRetrieve(key, this.socketHandlersParams[key]);
+            }
+        }
+
+        /*for (let key in this.socketHandlersParams) {
+            if (this.socketHandlersParams.hasOwnProperty(key)) {
+
+
+                console.log("là", key);
+
+                this.socket.on("retrieve"+key, (data:NodeJsDataInterface[]) => {
+
+                    console.log(key);
+                    this.wallSubject.get(key).next(data);
+                });
+            }
+        }*/
     }
 
     setEndPointsValidityBooleans(value:boolean) {
