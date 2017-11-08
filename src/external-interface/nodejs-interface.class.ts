@@ -335,7 +335,11 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     loadEntity(entityType:string, entityId:any):Observable<DataEntity> {
-        return null;
+        return this.loadEntityCollection(entityType, null, {
+            id: entityId
+        }).map((data:DataEntityCollection) => {
+            return data.dataEntities[0];
+        });
     }
 
     saveEntity(entity:DataEntity, applyDiff:boolean):Observable<DataEntity> {

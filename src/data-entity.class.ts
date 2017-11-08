@@ -142,7 +142,7 @@ export class DataEntity extends DataStructure {
      * Sauvegarde l'entité dans le provider de données
      * @returns {Observable<DataEntity>} L'observer de l'objet
      */
-    save(applyDiff:boolean = true):Observable<DataEntity> {
+    save(applyDiff:boolean = true, exclusions:string[] = []):Observable<DataEntity> {
 
         if (this._clonedAttributes) {
             this.validateClonedAttributes();
@@ -152,13 +152,13 @@ export class DataEntity extends DataStructure {
 
         if (!this.temporary) {
             // l'entité existe déjà dans l'api
-            observable = this.manager.saveEntity(this, true, false, applyDiff);
+            observable = this.manager.saveEntity(this, true, false, applyDiff, exclusions);
             observable.subscribe(() => this.createReferenceObject());
             return observable;
         } else {
             // l'entité n'existe pas, elle reste à créer
             var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
-            observable = this.manager.createEntity(this.type, this.attributes);
+            observable = this.manager.createEntity(this.type, this.attributes, null, false, exclusions);
             observable.subscribe((data:DataEntity) => {
                 this.id = data.id;
                 console.log("nouvel id", this.id, this);

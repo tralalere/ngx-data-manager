@@ -279,7 +279,7 @@ export class DataManagerService {
      * @param propagateChanges
      * @returns {Observable<DataEntity>} L'observable de sauvegarde
      */
-    saveEntity(entity:DataEntity, propagateChanges:boolean = true, raw:boolean = false, applyDiff:boolean = true):Observable<DataEntity> {
+    saveEntity(entity:DataEntity, propagateChanges:boolean = true, raw:boolean = false, applyDiff:boolean = true, exclusions:string[] = []):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity>;
 
@@ -381,7 +381,7 @@ export class DataManagerService {
      * @param datas Données d'initialisation
      * @returns {Observable<DataEntity>} L'observable de création
      */
-    createEntity(entityType:string, datas:Object, params:Object = null, temporary:boolean = false):Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object, params:Object = null, temporary:boolean = false, exclusions:string[] = []):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
