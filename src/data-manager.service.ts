@@ -355,31 +355,65 @@ export class DataManagerService {
     }
 
 
+    createTemporaryEntity(entityType:string, datas:Object):DataEntity {
+
+        var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
+
+        let entity:DataEntity = new DataEntity(datas, entityType, this, true);
+
+        this.registerEntity(entity, subject);
+        subject.next(entity);
+
+        if (this.entitiesCollectionsCache[entityType]) {
+            this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+            this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+        }
+
+        this.nextOnCollection(entityType);
+
+        return entity;
+    }
+
+
     /**
      * Crée une nouvelle entité d'un type donné dans le provider de données
      * @param entityType Type de l'entité à créer
      * @param datas Données d'initialisation
      * @returns {Observable<DataEntity>} L'observable de création
      */
-    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object, params:Object = null, temporary:boolean = false):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
-        this.getInterface(entityType).createEntity(entityType, datas, params)
-            .subscribe((entity:DataEntity) => {
-                    this.registerEntity(entity, subject);
-                    subject.next(entity);
+        if (!temporary) {
+            this.getInterface(entityType).createEntity(entityType, datas, params)
+                .subscribe((entity:DataEntity) => {
+                        this.registerEntity(entity, subject);
+                        subject.next(entity);
 
-                    if (this.entitiesCollectionsCache[entityType]) {
-                        this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
-                        this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
-                    }
+                        if (this.entitiesCollectionsCache[entityType]) {
+                            this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                            this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+                        }
 
-                    this.nextOnCollection(entityType);
-                },
-                (error:Object) => {
-                    subject.error(error);
-                });
+                        this.nextOnCollection(entityType);
+                    },
+                    (error:Object) => {
+                        subject.error(error);
+                    });
+        } else {
+            let entity:DataEntity = new DataEntity(datas, entityType, this, true);
+
+            this.registerEntity(entity, subject);
+            subject.next(entity);
+
+            if (this.entitiesCollectionsCache[entityType]) {
+                this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+            }
+
+            this.nextOnCollection(entityType);
+        }
 
         return subject;
     }
