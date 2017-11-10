@@ -73,8 +73,17 @@ export class DataEntity extends DataStructure {
         return this._clonedAttributes;
     }
 
-    clonedAttributes():Object {
-        this._clonedAttributes = JSON.parse(JSON.stringify(this.attributes));
+    clonedAttributes(keyExclusions:string[] = []):Object {
+
+        var ret:Object = {};
+
+        for (let key of Object.keys(this.attributes)) {
+            if (keyExclusions.indexOf(key) === -1) {
+                ret[key] = JSON.parse(JSON.stringify(this.attributes[key]))
+            }
+        }
+
+        this._clonedAttributes = ret;
         return this;
     }
 

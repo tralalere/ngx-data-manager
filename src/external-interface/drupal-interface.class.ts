@@ -90,7 +90,7 @@ export class DrupalInterface implements ExternalInterface {
      * @param entity Entité à sauvegarder
      * @returns {any} L'observable de l'entité
      */
-    saveEntity(entity:DataEntity, applyDiff:boolean = true):Observable<DataEntity> {
+    saveEntity(entity:DataEntity, applyDiff:boolean = true, exclusions:string[] = []):Observable<DataEntity> {
 
         var diff:Object;
 
@@ -102,6 +102,11 @@ export class DrupalInterface implements ExternalInterface {
             if (diff["id"]) delete diff["id"];
         }
 
+        for (let key of exclusions) {
+            if (diff[key] !== undefined) {
+                delete diff[key];
+            }
+        }
 
         return this.http.patch(this.getApiUrl(entity.type) + entity.type + "/" + entity.id, JSON.stringify(diff), {
                 headers: this.getHeaders()
@@ -129,9 +134,17 @@ export class DrupalInterface implements ExternalInterface {
      * @param datas Données de création
      * @returns {Observable<DataEntity>} L'observable de l'entité créée
      */
-    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
+    createEntity(entityType:string, datas:Object, params:Object = null, exclusions:string[] = []):Observable<DataEntity> {
 
-        return this.http.post(this.getApiUrl(entityType) + entityType, JSON.stringify(datas), {
+        let filteredData:Object = {};
+
+        for (let key of Object.keys(datas)) {
+            if (exclusions.indexOf(key) === -1) {
+                filteredData[key] = datas[key];
+            }
+        }
+
+        return this.http.post(this.getApiUrl(entityType) + entityType, JSON.stringify(filteredData), {
             headers: this.getHeaders()
         })
             .map(this.extractEntity, {entityType: entityType, manager: this.manager}).catch(this.handleError);

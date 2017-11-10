@@ -80,12 +80,23 @@ export class LocalStorageInterface implements ExternalInterface {
         return new BehaviorSubject<DataEntity>(entity);
     }
 
-    saveEntity(entity:DataEntity, applyDiff:boolean): Observable<DataEntity> {
+    saveEntity(entity:DataEntity, applyDiff:boolean, exclusions:string[] = []): Observable<DataEntity> {
+
+        this.conditionalLoadStorageFromIndex(entity.type);
+
+        var filteredData:Object = {};
+
+        for (let key of Object.keys(entity.attributes)) {
+            if (exclusions.indexOf(key) === -1) {
+                filteredData[key] = entity.attributes[key];
+            }
+        }
+        
         if (!this.models[entity.type]) {
             this.models[entity.type] = {};
         }
         
-        this.models[entity.type][String(entity.id)] = entity.attributes;
+        this.models[entity.type][String(entity.id)] = filteredData;
         this.saveStorageToIndex(entity.type);
         
         return new BehaviorSubject(entity);
@@ -132,8 +143,19 @@ export class LocalStorageInterface implements ExternalInterface {
     // aucune utilité
     //saveEntityCollection(entityCollection: DataEntityCollection): Observable<DataEntityCollection>;
 
-    createEntity(entityType:string, datas:Object, params:Object = null): Observable<DataEntity> {
-        return this.putEntity(entityType, datas, params);
+    createEntity(entityType:string, datas:Object, params:Object = null, exclusions:string[] = []): Observable<DataEntity> {
+
+        this.conditionalLoadStorageFromIndex(entityType);
+
+        var filteredData:Object = {};
+
+        for (let key of Object.keys(datas)) {
+            if (exclusions.indexOf(key) === -1) {
+                filteredData[key] = datas[key];
+            }
+        }
+
+        return this.putEntity(entityType, filteredData, params);
     }
 
     putEntity(entityType:string, datas:Object, params:Object = null): Observable<DataEntity> {

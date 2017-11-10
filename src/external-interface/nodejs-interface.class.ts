@@ -342,11 +342,19 @@ export class NodeJsInterface implements ExternalInterface {
         });
     }
 
-    saveEntity(entity:DataEntity, applyDiff:boolean):Observable<DataEntity> {
+    saveEntity(entity:DataEntity, applyDiff:boolean, exclusions:string[] = []):Observable<DataEntity> {
+
+        var filteredData:Object = {};
+
+        for (let key of Object.keys(entity.attributes)) {
+            if (exclusions.indexOf(key) === -1) {
+                filteredData[key] = entity.attributes[key];
+            }
+        }
 
         var requestData:NodeJsDataInterface = {
             command: "update",
-            data: entity.attributes,
+            data: filteredData,
             mur: this.currentWallId,
             type: entity.type
         };
@@ -410,8 +418,17 @@ export class NodeJsInterface implements ExternalInterface {
         this.collectionSubscriptions = [];
     }
 
-    createEntity(entityType:string, datas:Object, params:Object = null):Observable<DataEntity> {
-        return this.putEntity(entityType, datas, params);
+    createEntity(entityType:string, datas:Object, params:Object = null, exclusions:string[] = []):Observable<DataEntity> {
+
+        var filteredData:Object = {};
+
+        for (let key of Object.keys(datas)) {
+            if (exclusions.indexOf(key) === -1) {
+                filteredData[key] = datas[key];
+            }
+        }
+
+        return this.putEntity(entityType, filteredData, params);
     }
 
     generateTempId():number {

@@ -291,7 +291,7 @@ export class DataManagerService {
 
         if(!raw) {
             if (entity.hasChanged() || !applyDiff) {
-                this.getInterface(entity.type).saveEntity(entity, applyDiff).subscribe((entity:DataEntity) => {
+                this.getInterface(entity.type).saveEntity(entity, applyDiff, exclusions).subscribe((entity:DataEntity) => {
                     if (propagateChanges) {
                         this.propagateEntityChange(entity);
                     }
@@ -386,7 +386,7 @@ export class DataManagerService {
         var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
 
         if (!temporary) {
-            this.getInterface(entityType).createEntity(entityType, datas, params)
+            this.getInterface(entityType).createEntity(entityType, datas, params, exclusions)
                 .subscribe((entity:DataEntity) => {
                         this.registerEntity(entity, subject);
                         subject.next(entity);
