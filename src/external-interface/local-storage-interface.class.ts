@@ -75,7 +75,7 @@ export class LocalStorageInterface implements ExternalInterface {
 
     loadEntity(entityType: string, entityId:any): Observable<DataEntity> {
         this.conditionalLoadStorageFromIndex(entityType);
-        var data:Object = this.models[entityType][String(entityId)];
+        var data:Object = JSON.parse(JSON.stringify(this.models[entityType][String(entityId)]));
         var entity:DataEntity = new DataEntity(data, entityType, this.manager);
         return new BehaviorSubject<DataEntity>(entity);
     }
