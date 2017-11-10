@@ -15,12 +15,7 @@ export class DataStructure {
         for (var key in objectToClone) {
 
             if (objectToClone.hasOwnProperty(key)) {
-
-                if (typeof objectToClone[key] === "object") {
-                    cloneObj[key] = this.clone(objectToClone[key]);
-                } else {
-                    cloneObj[key] = objectToClone[key];
-                }
+                cloneObj[key] = objectToClone[key];
             }
         }
 

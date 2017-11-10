@@ -94,6 +94,8 @@ export class DataEntity extends DataStructure {
                 this.attributes[key] = this._clonedAttributes[key];
             }
         }
+
+        this._clonedAttributes = null;
     }
 
     invalidateClonedAttributes() {
@@ -168,7 +170,7 @@ export class DataEntity extends DataStructure {
             // l'entité n'existe pas, elle reste à créer
             var subject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
             observable = this.manager.createEntity(this.type, this.attributes, null, false, exclusions);
-            observable.subscribe((data:DataEntity) => {
+            observable.take(1).subscribe((data:DataEntity) => {
                 this.id = data.id;
                 console.log("nouvel id", this.id, this);
                 this.attributes = data.attributes;
