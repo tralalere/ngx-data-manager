@@ -9,6 +9,7 @@ import {Response} from "@angular/http";
 export class DataEntity extends DataStructure {
 
     attributes:Object = {};
+    nestedAttributes:Object = {};
 
     private _clonedAttributes:Object;
 
@@ -68,6 +69,13 @@ export class DataEntity extends DataStructure {
         return null;
     }
 
+    setNested(attributeName:string, value:any) {
+        this.nestedAttributes[attributeName] = value;
+    }
+
+    getNested(attributeName:string):any {
+        return this.nestedAttributes[attributeName];
+    }
 
     get getClonedAttributes():Object {
         return this._clonedAttributes;

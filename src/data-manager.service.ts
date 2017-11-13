@@ -15,6 +15,7 @@ import {DataManagerConfig} from "./data-manager-config.interface";
 import {NodeJsInterface} from "./external-interface/nodejs-interface.class";
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
+import {keyframes} from "@angular/animations/animations";
 
 
 @Injectable()
@@ -29,12 +30,14 @@ export class DataManagerService {
     pendingEntitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
     
     enabledEndPoints:{[key:string]:boolean} = {};
+    configuration:DataManagerConfig;
 
     constructor(
         public http:Http,
         public configProvider:ConfigProvider
     ) {
         this.entitiesCollectionsCache = {};
+        this.configuration = configProvider.config;
         this.createInterfaces(configProvider.config);
     }
 
@@ -87,6 +90,18 @@ export class DataManagerService {
         }
 
         return this.interfaces[interfaceId];
+    }
+
+
+    getNesting(entityName:string, key:string) {
+
+        if (this.configuration.nesting && this.configuration.nesting[entityName]) {
+            let entityNesting:{[key:string]:any} = this.configuration.nesting[entityName];
+
+            return entityNesting[key] ? entityNesting[key] : null;
+        }
+
+        return null;
     }
 
 
@@ -145,6 +160,8 @@ export class DataManagerService {
             }
 
         }
+
+
         
         return subject;
     }
@@ -157,7 +174,7 @@ export class DataManagerService {
      * @param forceLoading Force le chargement depuis le provider de données (pas de cache front)
      * @returns {Observable<DataEntity>} L'observable de chargement
      */
-    loadEntity(entityType:string, entityId:any, forceLoading:boolean = false):Observable<DataEntity> {
+    loadEntity(entityType:string, entityId:any, forceLoading:boolean = false, nesting:boolean = true):Observable<DataEntity> {
 
         var subject:ReplaySubject<DataEntity>;
         var tSubject:ReplaySubject<DataEntity> = new ReplaySubject<DataEntity>(1);
@@ -205,6 +222,10 @@ export class DataManagerService {
             } else {
                 return subject;
             }
+        }
+
+        if (nesting) {
+            //let nestedKeys:{[keyframes:string]:string} = this.getNesting()
         }
         
         return tSubject;
