@@ -15,7 +15,6 @@ import {DataManagerConfig} from "./data-manager-config.interface";
 import {NodeJsInterface} from "./external-interface/nodejs-interface.class";
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
-import {keyframes} from "@angular/animations/animations";
 
 
 @Injectable()
