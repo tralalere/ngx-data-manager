@@ -306,7 +306,7 @@ export class NodeJsInterface implements ExternalInterface {
 
         data.forEach((itemData:NodeJsDataInterface) => {
             // @TODO Replace occurences of wall to something like "filter[]"
-            if (itemData.command === this["command"] && this["wall"] === itemData.data['mur']) {
+            if (itemData.command === this["command"] && this["wall"] === itemData.data['mur'] && this["self"].endpointFilterValidity(itemData)) {
                 entities.push(this["self"].mapToEntity(itemData));
             }
         });
