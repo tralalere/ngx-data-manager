@@ -387,9 +387,9 @@ export class NodeJsInterface implements ExternalInterface {
             });
         }
 
-        if (params && params["wallid"]) {
-            this.socket.emit('connexion', entityType, params["wallid"]);
-            this.currentWallId = params["wallid"];
+        if (params && params["mur"]) {
+            this.socket.emit('connexion', entityType, params["mur"]);
+            this.currentWallId = params["mur"];
         } else {
             this.socket.emit(entityType, params || {});
         }
@@ -398,8 +398,8 @@ export class NodeJsInterface implements ExternalInterface {
 
         var obs:Observable<DataEntityCollection>;
 
-        if (params && params["wallid"]) {
-            obs = this.getWallAndTypeFilteredObservable(entityType, params["wallid"]);
+        if (params && params["mur"]) {
+            obs = this.getWallAndTypeFilteredObservable(entityType, params["mur"]);
         } else if (params) {
             obs = this.getParamsAndTypeFilteredObservable(entityType, params);
         } else {
@@ -445,8 +445,8 @@ export class NodeJsInterface implements ExternalInterface {
 
         let wallid:string;
 
-        if (params && params["wallid"]) {
-            wallid = params["wallid"];
+        if (params && params["mur"]) {
+            wallid = params["mur"];
         } else {
             wallid = "test1";
         }
@@ -470,8 +470,8 @@ export class NodeJsInterface implements ExternalInterface {
         // pour la suppression, ça ne devrait pas être utile de récupérer le wallid
         let wallid:string;
 
-        if (params && params["wallid"]) {
-            wallid = params["wallid"];
+        if (params && params["mur"]) {
+            wallid = params["mur"];
         } else {
             wallid = "test1";
         }
