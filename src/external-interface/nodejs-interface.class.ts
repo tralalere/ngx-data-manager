@@ -161,7 +161,9 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     endpointFilterValidity(data:NodeJsDataInterface):boolean {
-        if (!this.paramsByEndpoint[data["type"]]) {
+        if (this.paramsByEndpoint[data["type"]] === undefined) {
+            return false;
+        } else if (this.paramsByEndpoint[data["type"]] === null) {
             return true;
         } else {
             return this.paramsEquality(data, this.paramsByEndpoint[data["type"]]);
