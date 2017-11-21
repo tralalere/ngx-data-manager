@@ -48,8 +48,8 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     connectionAndRetrieve(key:string, params:Object = null) {
-        if (params !== null && params["wallid"]) {
-            this.socket.emit('connexion', key, params["wallid"]);
+        if (params !== null && params["mur"]) {
+            this.socket.emit('connexion', key, params["mur"]);
         } else {
             this.socket.emit(key, params || {});
         }
