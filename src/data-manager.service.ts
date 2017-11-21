@@ -597,9 +597,12 @@ export class DataManagerService {
         if (this.entitiesSubjects[entity.id]) {
             delete this.entitiesSubjects[entity.id];
 
-            let index:number = this.entitiesCollectionsCache[entity.type].dataEntities.indexOf(entity);
-            this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
-            this.entitiesCollectionsCache[entity.type].entitiesObservables.splice(index, 1);
+            if (this.entitiesCollectionsCache[entity.type] !== undefined) {
+                let index:number = this.entitiesCollectionsCache[entity.type].dataEntities.indexOf(entity);
+                this.entitiesCollectionsCache[entity.type].dataEntities.splice(index, 1);
+                this.entitiesCollectionsCache[entity.type].entitiesObservables.splice(index, 1);
+            }
+
         }
     }
 
