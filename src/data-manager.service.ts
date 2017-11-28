@@ -352,7 +352,10 @@ export class DataManagerService {
             }
 
             subject = this.entitiesCollectionsCache[entity.type].entitiesObservables[index] as ReplaySubject<DataEntity>;
-            subject.next(entity);
+
+            if (subject) {
+                subject.next(entity);
+            }
 
         } else {
             // case 2: new entity
