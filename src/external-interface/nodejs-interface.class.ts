@@ -41,6 +41,12 @@ export class NodeJsInterface implements ExternalInterface {
         this.wallEventType = configuration.wallEvent ? configuration.wallEvent : "retrieveMur";
 
         this.init("wall");
+
+        window.addEventListener("focus", () => {
+            if (this.initialized) {
+                this.initializeSocket();
+            }
+        })
     }
 
     init(type) {
@@ -383,11 +389,12 @@ export class NodeJsInterface implements ExternalInterface {
         }
 
         if (!this.socketHandlersParams[entityType]) {
-            this.socketHandlersParams[entityType] = params;
             this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
                 this.wallSubject.get(entityType).next(data);
             });
         }
+
+        this.socketHandlersParams[entityType] = params;
 
         if (params && params["mur"]) {
             this.socket.emit('connexion', entityType, params["mur"]);
