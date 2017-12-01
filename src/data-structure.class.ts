@@ -88,7 +88,7 @@ export class DataStructure {
 
             if (updated.hasOwnProperty(key)) {
 
-                if (!reference[key]) {
+                if (reference[key] === undefined) {
                     diffObject[key] = updated[key];
                 }
             }
