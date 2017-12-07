@@ -27,7 +27,7 @@ export class DataManagerService {
     pendingCollectionsSubjects:{[key:string]:ReplaySubject<DataEntityCollection>} = {};
     entitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
     pendingEntitiesSubjects:{[key:number]:ReplaySubject<DataEntity>} = {};
-    
+
     enabledEndPoints:{[key:string]:boolean} = {};
     configuration:DataManagerConfig;
 
@@ -161,7 +161,7 @@ export class DataManagerService {
         }
 
 
-        
+
         return subject;
     }
 
@@ -226,7 +226,7 @@ export class DataManagerService {
         if (nesting) {
             //let nestedKeys:{[keyframes:string]:string} = this.getNesting()
         }
-        
+
         return tSubject;
     }
 
@@ -411,15 +411,19 @@ export class DataManagerService {
         if (!temporary) {
             this.getInterface(entityType).createEntity(entityType, datas, params, exclusions)
                 .subscribe((entity:DataEntity) => {
-                        this.registerEntity(entity, subject);
-                        subject.next(entity);
 
-                        if (this.entitiesCollectionsCache[entityType]) {
-                            this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
-                            this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+                        if (entity) {
+                            this.registerEntity(entity, subject);
+                            subject.next(entity);
+
+                            if (this.entitiesCollectionsCache[entityType]) {
+                                this.entitiesCollectionsCache[entityType].dataEntities.push(entity);
+                                this.entitiesCollectionsCache[entityType].entitiesObservables.push(subject);
+                            }
+
+                            this.nextOnCollection(entityType);
                         }
 
-                        this.nextOnCollection(entityType);
                     },
                     (error:Object) => {
                         subject.error(error);
@@ -612,7 +616,7 @@ export class DataManagerService {
 
     registerEntityCollectionSubject(collectionType:string, subject:ReplaySubject<DataEntityCollection>) {
         //if (!this.entitiesCollectionsSubjects[collectionType]) {
-            this.entitiesCollectionsSubjects[collectionType] = subject;
+        this.entitiesCollectionsSubjects[collectionType] = subject;
         //}
     }
 

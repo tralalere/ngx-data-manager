@@ -334,8 +334,12 @@ export class NodeJsInterface implements ExternalInterface {
     }
 
     mapToEntity(data:NodeJsDataInterface):DataEntity {
-        var entity:DataEntity = new DataEntity(data.data, data.type, this.manager);
-        return entity;
+        if (this.endpointFilterValidity(data)) {
+            var entity:DataEntity = new DataEntity(data.data, data.type, this.manager);
+            return entity;
+        } else {
+            return null;
+        }
     }
 
     getEntity(entityType:string):Observable<DataEntity> {
