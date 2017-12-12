@@ -1,6 +1,6 @@
 {
   "name": "ngx-data-manager",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "description": "",
   "main": "bundles/data-manager.umd.js",
   "scripts": {
@@ -79,5 +79,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "mobile-detect": "^1.4.0"
   }
 }

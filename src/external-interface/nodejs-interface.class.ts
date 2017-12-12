@@ -13,6 +13,9 @@ import * as io from 'socket.io-client';
 import * as uuid from "uuid";
 import {NodeJsDataInterface} from "./nodejs-data.interface";
 
+declare var require: any;
+const MobileDetect = require("mobile-detect/mobile-detect");
+
 export class NodeJsInterface implements ExternalInterface {
 
     socket;
@@ -42,11 +45,16 @@ export class NodeJsInterface implements ExternalInterface {
 
         this.init("wall");
 
-        window.addEventListener("focus", () => {
-            if (this.initialized) {
-                this.initializeSocket();
-            }
-        })
+        var md = new MobileDetect(window.navigator.userAgent);
+        var mobile:string = md.mobile();
+
+        if (mobile) {
+            window.addEventListener("focus", () => {
+                if (this.initialized) {
+                    this.initializeSocket();
+                }
+            });
+        }
     }
 
     init(type) {
