@@ -74,7 +74,7 @@ export class DataStructure {
 
                 let refVal:string = JSON.stringify(reference[key]);
 
-                if (updated[key]) {
+                if (updated.hasOwnProperty(key)) {
                     let updVal:string = JSON.stringify(updated[key]);
 
                     if (refVal !== updVal) {
@@ -88,7 +88,7 @@ export class DataStructure {
 
             if (updated.hasOwnProperty(key)) {
 
-                if (reference[key] === undefined) {
+                if (reference.hasOwnProperty(key)) {
                     diffObject[key] = updated[key];
                 }
             }
@@ -103,7 +103,7 @@ export class DataStructure {
      * @returns {Object} Le diff
      */
     getDiff(reference:Object, updated:Object):Object {
-        var incompleteDiff:Object = this.applyDiff(reference, updated);
+        var incompleteDiff:Object = this.applyDiff(reference, this.clone(updated));
         return this.cleanObject(incompleteDiff);
     }
 }
