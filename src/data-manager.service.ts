@@ -13,6 +13,7 @@ import {ReplaySubject} from "rxjs/Rx";
 import {ConfigProvider} from "./config.provider";
 import {DataManagerConfig} from "./data-manager-config.interface";
 import {NodeJsInterface} from "./external-interface/nodejs-interface.class";
+import {LocalFileInterface} from "./external-interface/local-file-interface.class";
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/map';
 
@@ -51,6 +52,9 @@ export class DataManagerService {
 
             case "nodejs":
                 return new NodeJsInterface(this, conf);
+
+            case "localfile":
+                return new LocalFileInterface(this.http, this, conf);
 
             default:
                 console.warn("Unknown external interface type.");

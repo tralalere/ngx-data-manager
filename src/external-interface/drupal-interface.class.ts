@@ -17,9 +17,9 @@ import 'rxjs/add/operator/map';
 export class DrupalInterface implements ExternalInterface {
 
     constructor(
-        private http:Http,
-        private manager:DataManagerService,
-        private configuration:DrupalInterfaceConfig
+        protected http:Http,
+        protected manager:DataManagerService,
+        private configuration:DrupalInterfaceConfig = null
     ) {}
 
 
@@ -27,7 +27,7 @@ export class DrupalInterface implements ExternalInterface {
      * Retourne les headers nécessaire aux requêtes http
      * @returns {Headers} Les headers
      */
-    private getHeaders():Headers {
+    protected getHeaders():Headers {
        return Settings.getHeaders();
     }
 
@@ -75,7 +75,7 @@ export class DrupalInterface implements ExternalInterface {
      * @param res Réponse à convertir
      * @returns {DataEntity} Entité de données
      */
-    private extractEntity(res: Response):DataEntity {
+    protected extractEntity(res: Response):DataEntity {
         let body = res.json();
         if(res.headers.get("content-type").indexOf("single") == -1) {
             return new DataEntity(body.data[0] || {}, this['entityType'], this['manager']);
@@ -240,7 +240,7 @@ export class DrupalInterface implements ExternalInterface {
      * @param res Réponse du serveur
      * @returns {DataEntityCollection} L'objet DataEntityCollection
      */
-    private extractEntityCollection(res: Response):DataEntityCollection {
+    protected extractEntityCollection(res: Response):DataEntityCollection {
         let body = res.json();
         var coll:DataEntityCollection = new DataEntityCollection(body.data || {}, this["entityType"], this.manager);
         

@@ -1,6 +1,6 @@
 {
   "name": "ngx-data-manager",
-  "version": "1.0.37",
+  "version": "1.0.40",
   "description": "",
   "main": "bundles/data-manager.umd.js",
   "scripts": {
@@ -81,6 +81,7 @@
     }
   },
   "dependencies": {
-    "mobile-detect": "^1.4.0"
+    "mobile-detect": "^1.4.0",
+    "object-hash": "^1.2.0"
   }
 }

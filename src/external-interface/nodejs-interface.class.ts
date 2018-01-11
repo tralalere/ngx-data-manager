@@ -15,6 +15,7 @@ import {NodeJsDataInterface} from "./nodejs-data.interface";
 
 declare var require: any;
 const MobileDetect = require("mobile-detect/mobile-detect");
+const hash = require('object-hash');
 
 export class NodeJsInterface implements ExternalInterface {
 
@@ -390,6 +391,14 @@ export class NodeJsInterface implements ExternalInterface {
         return null;
     }
 
+    getParamsHash(params:Object):string {
+        if (params) {
+            return "";
+        } else {
+            return hash(params);
+        }
+    }
+
     loadEntityCollection(entityType:string, fields:Array<string>, params:Object = null):Observable<DataEntityCollection> {
 
         this.paramsByEndpoint[entityType] = params;
@@ -400,11 +409,11 @@ export class NodeJsInterface implements ExternalInterface {
             this.initializeSocket();
         }
 
-        if (!this.socketHandlersParams[entityType]) {
+        //if (!this.socketHandlersParams[entityType]) {
             this.socket.on("retrieve"+entityType, (data:NodeJsDataInterface[]) => {
                 this.wallSubject.get(entityType).next(data);
             });
-        }
+        //}
 
         this.socketHandlersParams[entityType] = params;
 
