@@ -23,6 +23,8 @@ export class LocalStorageInterface implements ExternalInterface {
         this.loadIndex();
     }
 
+    useLocale(locale: string) { }
+
     saveIndex() {
         localStorage["max-index"] = String(this.maxIndex);
     }

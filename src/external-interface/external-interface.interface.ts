@@ -8,6 +8,7 @@ import {Response} from "@angular/http";
 
 export interface ExternalInterface {
 
+    useLocale(locale: string);
     getEntity(entityType: string): Observable<DataEntity>;
 
     loadEntity(entityType: string, entityId: any): Observable<DataEntity>;

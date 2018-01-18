@@ -82,6 +82,16 @@ export class DataManagerService {
         }
     }
 
+    useLocale(locale:string) {
+        this.entitiesCollectionsCache = {};
+        this.entitiesCollectionsSubjects = {};
+        this.entitiesSubjects = {};
+
+        for (let interfaceId in this.interfaces) {
+            this.interfaces[interfaceId].useLocale(locale);
+        }
+    }
+
 
     getInterface(endPointName:string):ExternalInterface {
         var interfaceId:string;

@@ -3,4 +3,5 @@
  */
 export interface DrupalInterfaceConfig {
     apiUrl:string;
+    localeUrls?:Object;
 }

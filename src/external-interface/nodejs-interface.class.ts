@@ -58,6 +58,8 @@ export class NodeJsInterface implements ExternalInterface {
         }
     }
 
+    useLocale(locale: string) { }
+
     init(type) {
         this.messageSubject = new ReplaySubject<NodeJsDataInterface[]>(1);
     }

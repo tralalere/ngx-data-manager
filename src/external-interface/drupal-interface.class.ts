@@ -16,6 +16,8 @@ import 'rxjs/add/operator/map';
 
 export class DrupalInterface implements ExternalInterface {
 
+    private locale:string;
+
     constructor(
         protected http:Http,
         protected manager:DataManagerService,
@@ -31,8 +33,16 @@ export class DrupalInterface implements ExternalInterface {
        return Settings.getHeaders();
     }
 
+    useLocale(locale:string) {
+        this.locale = locale;
+    }
+
 
     getApiUrl(entityType:string):string {
+        if (this.locale && this.configuration.localeUrls[this.locale]) {
+            return this.configuration.localeUrls[this.locale];
+        }
+
         return this.configuration.apiUrl;
     }
 
