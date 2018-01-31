@@ -69,9 +69,7 @@ export class DataStructure {
         var diffObject = {};
 
         for (var key in reference) {
-
             if (reference.hasOwnProperty(key)) {
-
                 let refVal:string = JSON.stringify(reference[key]);
 
                 if (updated.hasOwnProperty(key)) {
@@ -85,14 +83,13 @@ export class DataStructure {
         }
 
         for (var key in updated) {
-
             if (updated.hasOwnProperty(key)) {
-
-                if (reference.hasOwnProperty(key)) {
+                if (!reference.hasOwnProperty(key)) {
                     diffObject[key] = updated[key];
                 }
             }
         }
+
         return diffObject;
     }
 
